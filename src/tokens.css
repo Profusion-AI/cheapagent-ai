@@ -1,0 +1,78 @@
+:root {
+  --ca-green: #23c96b;
+  --ca-blue: #2f6fed;
+  --ca-teal: #3ddfc4;
+
+  --ca-off-black: #101413;
+  --ca-off-white: #f7f8f4;
+  --ca-gray-50: #f1f3ef;
+  --ca-gray-100: #e4e8e1;
+  --ca-gray-200: #cbd2c8;
+  --ca-gray-300: #aeb8aa;
+  --ca-gray-400: #8f9b8b;
+  --ca-gray-500: #717d6e;
+  --ca-gray-600: #586255;
+  --ca-gray-700: #414a3f;
+  --ca-gray-800: #2b332a;
+  --ca-gray-900: #181f18;
+
+  --ca-bg: var(--ca-off-white);
+  --ca-surface: #ffffff;
+  --ca-surface-muted: var(--ca-gray-50);
+  --ca-surface-raised: #fbfcf8;
+
+  --ca-text: var(--ca-off-black);
+  --ca-text-muted: var(--ca-gray-600);
+  --ca-text-subtle: var(--ca-gray-500);
+  --ca-text-inverse: var(--ca-off-white);
+
+  --ca-border: var(--ca-gray-200);
+  --ca-border-strong: var(--ca-gray-300);
+  --ca-action-primary: var(--ca-blue);
+  --ca-action-primary-hover: #255ed0;
+  --ca-action-secondary: var(--ca-green);
+  --ca-state-optimized: var(--ca-teal);
+  --ca-focus-ring: #8fb4ff;
+
+  --ca-code-bg: var(--ca-off-black);
+  --ca-code-text: var(--ca-off-white);
+  --ca-code-accent: var(--ca-green);
+
+  --color-background: var(--ca-bg);
+  --color-surface: var(--ca-surface);
+  --color-surface-muted: var(--ca-surface-muted);
+  --color-text: var(--ca-text);
+  --color-text-muted: var(--ca-text-muted);
+  --color-text-subtle: var(--ca-text-subtle);
+  --color-text-inverse: var(--ca-text-inverse);
+  --color-border: var(--ca-border);
+  --color-border-strong: var(--ca-border-strong);
+  --color-command: var(--ca-green);
+  --color-defensible: var(--ca-blue);
+  --color-optimized: var(--ca-teal);
+  --color-primary: var(--ca-action-primary);
+  --color-primary-hover: var(--ca-action-primary-hover);
+
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --shadow-soft: 0 16px 42px rgba(16, 20, 19, 0.08);
+  --motion-fast: 140ms ease;
+
+  --ca-tint-command: #d4f7e5;
+  --ca-tint-defensible: #deeafd;
+  --ca-tint-optimized: #d9fbf5;
+}
+
+@supports (background: color-mix(in srgb, white, black)) {
+  :root {
+    --ca-focus-ring: color-mix(in srgb, var(--ca-blue) 70%, white);
+    --ca-tint-command: color-mix(in srgb, var(--ca-green) 18%, white);
+    --ca-tint-defensible: color-mix(in srgb, var(--ca-blue) 14%, white);
+    --ca-tint-optimized: color-mix(in srgb, var(--ca-teal) 20%, white);
+  }
+}
+

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="CheapAgent measures and converts agent-context documents in the browser using doc2toon.">
+  <meta property="og:title" content="CheapAgent">
+  <meta property="og:description" content="Browser-side context measurement for agent documents.">
+  <meta property="og:image" content="https://cheapagent.ai/assets/cheapagent1-1.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cheapagent.ai/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://cheapagent.ai/assets/cheapagent1-1.png">
+  <title>CheapAgent - Context Efficiency Workbench</title>
+  <link rel="icon" href="/assets/cheapagent1-1.png" type="image/png">
+  <link rel="stylesheet" href="/src/tokens.css">
+  <link rel="stylesheet" href="/src/styles.css">
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="CheapAgent home">
+        <span class="brand-mark" aria-hidden="true">$</span>
+        <span>cheap<span>agent</span></span>
+      </a>
+      <div class="build-pill" aria-label="Version">v0.1 alpha</div>
+    </header>
+
+    <main class="alpha-main">
+      <section class="intro" aria-labelledby="page-title">
+        <div class="intro-copy">
+          <h1 id="page-title">Measure agent-context bloat before it hits the model.</h1>
+          <p>
+            CheapAgent flags duplicate and vague instructions, measures before/after size,
+            and converts agent docs to TOON when structured output is a fit.
+          </p>
+        </div>
+        <div class="brand-visual" aria-hidden="true">
+          <img src="/assets/cheapagent1-1.png" alt="">
+        </div>
+      </section>
+
+      <section class="signal-strip" aria-label="CheapAgent operating states">
+        <div class="signal-item" data-kind="command">
+          <span aria-hidden="true">ok</span>
+          <strong>Valid input</strong>
+          <small>ready state</small>
+        </div>
+        <div class="signal-item" data-kind="defensible">
+          <span aria-hidden="true">audit</span>
+          <strong>Evidence</strong>
+          <small>reviewable output</small>
+        </div>
+        <div class="signal-item" data-kind="optimized">
+          <span aria-hidden="true">save</span>
+          <strong>Token delta</strong>
+          <small>measured win</small>
+        </div>
+      </section>
+
+      <section class="workbench" aria-label="Context efficiency workbench">
+        <form class="input-pane" id="alpha-form">
+          <fieldset class="mode-fieldset">
+            <legend>Conversion mode</legend>
+            <div class="mode-grid" role="radiogroup" aria-label="Conversion mode">
+              <label class="mode-option">
+                <input type="radio" name="mode" value="claude" checked>
+                <span>Optimize CLAUDE.md</span>
+                <small>Agent instructions</small>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="mode" value="agents">
+                <span>Optimize AGENTS.md</span>
+                <small>Operating charter</small>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="mode" value="skill">
+                <span>Optimize SKILL.md</span>
+                <small>Reusable procedure</small>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="mode" value="toon">
+                <span>Convert document to TOON</span>
+                <small>Lossless output</small>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="input-header">
+            <label for="source-input">Source text</label>
+            <span id="char-count" aria-live="polite">0 / 1000 chars</span>
+          </div>
+          <textarea id="source-input" maxlength="1000" spellcheck="true" placeholder="Paste Markdown or plain text here. Anonymous alpha limit: 1000 characters."></textarea>
+
+          <div class="input-actions">
+            <label class="file-action" for="file-input">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 2H7a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8z"></path>
+                <path d="M14 2v6h6"></path>
+                <path d="M8 13h8M8 17h5"></path>
+              </svg>
+              Upload .md or .txt
+            </label>
+            <input id="file-input" type="file" accept=".md,.txt,text/markdown,text/plain">
+            <button class="button-secondary" id="sample-button" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 6h16M4 12h10M4 18h16"></path>
+              </svg>
+              Load sample
+            </button>
+            <button class="button-primary" id="run-button" type="submit">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 8 6 4-6 4V8Z"></path>
+                <path d="M14 8h4v8h-4"></path>
+              </svg>
+              Measure context
+            </button>
+          </div>
+
+          <p class="privacy-note">
+            Privacy default: document bodies are processed in your browser through the `doc2toon` browser package. This page does not call a hosted LLM API.
+          </p>
+          <p class="input-notice" id="input-notice" role="status" aria-live="polite"></p>
+        </form>
+
+        <section class="result-pane" aria-labelledby="result-title">
+          <div class="result-header">
+            <div>
+              <h2 id="result-title">Evidence receipt</h2>
+              <p id="result-summary">Run the measurement to see source size, output size, warnings, and TOON.</p>
+            </div>
+            <span class="status-badge" id="status-badge" data-state="info">ready</span>
+          </div>
+
+          <div class="metrics" aria-label="Measured conversion metrics">
+            <div class="metric" data-kind="source">
+              <span>Source chars</span>
+              <strong id="source-chars">0</strong>
+              <small id="source-tokens">~0 tokens</small>
+            </div>
+            <div class="metric" data-kind="valid">
+              <span>TOON chars</span>
+              <strong id="toon-chars">0</strong>
+              <small id="toon-tokens">~0 tokens</small>
+            </div>
+            <div class="metric" data-kind="optimized">
+              <span>Token delta</span>
+              <strong id="token-delta">0</strong>
+              <small id="token-percent">0%</small>
+            </div>
+          </div>
+
+          <div class="warnings-block">
+            <div class="block-heading">
+              <h3>Optimizer warnings</h3>
+              <span>duplicate rules, vague rules, long sections, split candidates</span>
+            </div>
+            <div class="warnings-list" id="warnings-list" aria-live="polite">
+              <p class="empty-state">Warnings appear after measurement.</p>
+            </div>
+          </div>
+
+          <div class="output-block">
+            <div class="block-heading">
+              <h3>TOON output</h3>
+              <div class="output-actions">
+                <button class="button-ghost" id="copy-button" type="button" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="9" y="9" width="10" height="10" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  Copy
+                </button>
+                <button class="button-ghost" id="download-button" type="button" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3v12"></path>
+                    <path d="m7 10 5 5 5-5"></path>
+                    <path d="M5 21h14"></path>
+                  </svg>
+                  Download
+                </button>
+              </div>
+            </div>
+            <pre id="output" tabindex="0" aria-label="TOON output"></pre>
+          </div>
+        </section>
+      </section>
+
+      <footer class="alpha-footer">
+        CheapAgent is an early alpha for browser-side agent-context measurement. Savings are measured per input and are not guaranteed.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

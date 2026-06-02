@@ -1,0 +1,57 @@
+# CheapAgent AI
+
+CheapAgent is an early browser-side workbench for measuring and converting agent-context documents with `doc2toon`.
+
+The v0.1 app processes pasted or uploaded `.md` / `.txt` content in the browser, reports measured character and token deltas, surfaces optimizer warnings, and emits TOON output for review. It does not call a hosted LLM API or store document bodies server-side.
+
+## Status
+
+- Version: `0.1.0` alpha
+- Deployment target: `https://cheapagent.ai/`
+- Hosting target: Netlify static site
+- Indexing posture: `noindex, nofollow` until public launch copy and product posture are approved
+
+## Dependency Boundary
+
+CheapAgent depends on the public package boundary:
+
+```js
+import { convertTextToToon } from "doc2toon/browser";
+```
+
+`doc2toon` is not published to npm yet, so this repo temporarily depends on:
+
+```json
+"doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#main"
+```
+
+When `doc2toon` is published, replace that dependency with the npm version, for example `^0.1.1`.
+
+## Local Development
+
+```bash
+npm install
+npm run dev
+```
+
+Build and preview:
+
+```bash
+npm run build
+npm run preview
+```
+
+## Netlify
+
+Recommended project settings:
+
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Production branch: `main`
+- Node version: `20` or newer
+
+The domain DNS is managed through Netlify DNS. The final site/domain/SSL binding happens in Netlify, not in this repository.
+
+## Claims Boundary
+
+Savings are measured per input and are not guaranteed. CheapAgent v0.1 is not a compliance system, storage service, hosted LLM workflow, or proof of production-scale reliability.

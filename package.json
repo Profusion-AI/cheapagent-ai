@@ -1,0 +1,22 @@
+{
+  "name": "cheapagent-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser-side context efficiency workbench for measuring and converting agent documents with doc2toon.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5174",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4174",
+    "lint": "npm run build"
+  },
+  "dependencies": {
+    "doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#main"
+  },
+  "devDependencies": {
+    "vite": "^7.2.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
