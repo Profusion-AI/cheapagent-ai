@@ -64,6 +64,7 @@ Staging site:
 ```text
 VITE_CHEAPAGENT_ENV=staging
 VITE_CHEAPAGENT_CANONICAL_URL=https://cheapagent.netlify.app
+VITE_CHEAPAGENT_NOINDEX=true
 ```
 
 The current app does not require these variables to build. They are reserved for future environment-specific UI, analytics, and robots behavior.
@@ -86,6 +87,7 @@ Then verify:
 - Desktop and mobile layouts have no horizontal overflow.
 - No hosted LLM API call is made by the page.
 - Headers include `X-Content-Type-Options`, `Referrer-Policy`, and `Permissions-Policy`.
+- Production does not send `X-Robots-Tag: noindex`.
 - Production SSL certificate covers `cheapagent.ai` and `*.cheapagent.ai`.
 
 ## Safer Alternative

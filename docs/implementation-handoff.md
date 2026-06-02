@@ -55,6 +55,6 @@ Swap this to the npm package once available.
 8. Deploy with Netlify using build command `npm run build` and publish directory `dist`.
 9. Bind `cheapagent.ai` and `www.cheapagent.ai` in Netlify and wait for SSL.
 
-The repo intentionally keeps `noindex, nofollow` headers until public launch posture is approved.
+The production site is indexable. Staging should remain noindex through a separate Netlify site or branch-specific configuration.
 
 For staging vs production site ownership, see `docs/deployment-topology.md`.

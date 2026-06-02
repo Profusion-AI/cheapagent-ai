@@ -7,9 +7,9 @@ The v0.1 app processes pasted or uploaded `.md` / `.txt` content in the browser,
 ## Status
 
 - Version: `0.1.0` alpha
-- Deployment target: `https://cheapagent.ai/` after Netlify custom-domain SSL is bound
+- Deployment target: `https://cheapagent.ai/`
 - Hosting target: Netlify static site
-- Indexing posture: `noindex, nofollow` until public launch copy and product posture are approved
+- Indexing posture: production is indexable; staging should remain noindex through a separate Netlify site or branch-specific configuration
 
 ## Dependency Boundary
 
