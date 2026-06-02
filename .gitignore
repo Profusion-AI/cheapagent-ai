@@ -1,6 +1,43 @@
+# Dependencies
 node_modules/
+
+# Build and deploy output
 dist/
 .netlify/
-.DS_Store
-npm-debug.log*
 
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Private working material. Keep implementation notes, credentials,
+# local QA notes, and unpublished operating docs out of the public repo.
+private/
+.private/
+tmp/
+temp/
+.cache/
+
+# Test and QA artifacts
+coverage/
+playwright-report/
+test-results/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Brand assets are intentionally tracked for v0.1. Do not add broad
+# "*.png" or "*.svg" ignores unless these allow-rules are kept in place.
+!public/
+!public/assets/
+!public/assets/cheapagent-brand.png
+!public/assets/cheapagent1-1.png
+!public/assets/cheapagent1-1.svg
