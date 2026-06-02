@@ -1,66 +1,117 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="CheapAgent measures and converts agent-context documents in the browser using doc2toon.">
+  <meta name="description" content="CheapAgent measures agent-context bloat and converts structured documents to TOON in the browser using doc2toon.">
   <meta property="og:title" content="CheapAgent">
-  <meta property="og:description" content="Browser-side context measurement for agent documents.">
-  <meta property="og:image" content="https://cheapagent.ai/assets/cheapagent1-1.png">
+  <meta property="og:description" content="Browser-side context measurement for agent documents. Savings are measured per input.">
+  <meta property="og:image" content="https://cheapagent.ai/assets/cheapagent-logo-knockout.png">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://cheapagent.ai/">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://cheapagent.ai/assets/cheapagent1-1.png">
-  <title>CheapAgent - Context Efficiency Workbench</title>
-  <link rel="icon" href="/assets/cheapagent1-1.png" type="image/png">
+  <meta name="twitter:image" content="https://cheapagent.ai/assets/cheapagent-logo-knockout.png">
+  <title>CheapAgent - Measure Agent Context Before It Hits the Model</title>
+  <link rel="icon" href="/assets/cheapagent-logo-knockout.png" type="image/png">
   <link rel="stylesheet" href="/src/tokens.css">
   <link rel="stylesheet" href="/src/styles.css">
   <script type="module" src="/src/main.js"></script>
 </head>
 <body>
+  <div class="background-field" aria-hidden="true"></div>
   <div class="app-shell">
     <header class="app-header">
       <a class="brand" href="/" aria-label="CheapAgent home">
-        <span class="brand-mark" aria-hidden="true">$</span>
+        <img class="brand-logo" src="/assets/cheapagent-logo-knockout.png" alt="">
         <span>cheap<span>agent</span></span>
       </a>
-      <div class="build-pill" aria-label="Version">v0.1 alpha</div>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#workbench">Workbench</a>
+        <a href="#pipeline">How it works</a>
+        <a href="#claims">Claims</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light or dark theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+        </button>
+        <a class="button-ghost header-link" href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">Engine</a>
+        <div class="build-pill" aria-label="Version">v0.1 alpha</div>
+      </div>
     </header>
 
     <main class="alpha-main">
       <section class="intro" aria-labelledby="page-title">
         <div class="intro-copy">
+          <p class="eyebrow">Context efficiency for agents</p>
           <h1 id="page-title">Measure agent-context bloat before it hits the model.</h1>
           <p>
             CheapAgent flags duplicate and vague instructions, measures before/after size,
-            and converts agent docs to TOON when structured output is a fit.
+            and converts agent docs to TOON when structured output is a fit. It runs in your browser and does not claim savings it has not measured.
           </p>
+          <div class="hero-actions">
+            <a class="button-primary" href="#workbench">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 8 6 4-6 4V8Z"></path>
+                <path d="M14 8h4v8h-4"></path>
+              </svg>
+              Open workbench
+            </a>
+            <a class="button-secondary" href="#claims">Read claim boundary</a>
+          </div>
+          <div class="hero-meta" aria-label="CheapAgent privacy and measurement posture">
+            <div>
+              <strong id="hero-delta">measured</strong>
+              <span>measured delta</span>
+            </div>
+            <div>
+              <strong>0</strong>
+              <span>document bytes uploaded</span>
+            </div>
+            <div>
+              <strong>TOON</strong>
+              <span>browser-safe engine</span>
+            </div>
+          </div>
         </div>
         <div class="brand-visual" aria-hidden="true">
-          <img src="/assets/cheapagent1-1.png" alt="">
+          <img src="/assets/cheapagent-logo-knockout.png" alt="">
+          <div class="float-chip chip-delta">
+            <span>token delta</span>
+            <strong id="visual-delta">run</strong>
+          </div>
+          <div class="float-chip chip-privacy">
+            <span>upload</span>
+            <strong>none</strong>
+          </div>
         </div>
       </section>
 
       <section class="signal-strip" aria-label="CheapAgent operating states">
         <div class="signal-item" data-kind="command">
-          <span aria-hidden="true">ok</span>
-          <strong>Valid input</strong>
-          <small>ready state</small>
+          <span aria-hidden="true">measure</span>
+          <strong>Profile first</strong>
+          <small>detect structure</small>
         </div>
         <div class="signal-item" data-kind="defensible">
-          <span aria-hidden="true">audit</span>
-          <strong>Evidence</strong>
+          <span aria-hidden="true">defend</span>
+          <strong>Evidence receipt</strong>
           <small>reviewable output</small>
         </div>
         <div class="signal-item" data-kind="optimized">
-          <span aria-hidden="true">save</span>
+          <span aria-hidden="true">optimize</span>
           <strong>Token delta</strong>
-          <small>measured win</small>
+          <small>measured delta</small>
         </div>
       </section>
 
-      <section class="workbench" aria-label="Context efficiency workbench">
+      <section class="workbench" id="workbench" aria-label="Context efficiency workbench">
         <form class="input-pane" id="alpha-form">
           <fieldset class="mode-fieldset">
             <legend>Conversion mode</legend>
@@ -119,9 +170,7 @@
             </button>
           </div>
 
-          <p class="privacy-note">
-            Privacy default: document bodies are processed in your browser through the `doc2toon` browser package. This page does not call a hosted LLM API.
-          </p>
+          <p class="privacy-note">Privacy default: document bodies are processed in your browser through the doc2toon browser package. This page does not call a hosted LLM API.</p>
           <p class="input-notice" id="input-notice" role="status" aria-live="polite"></p>
         </form>
 
@@ -188,8 +237,53 @@
         </section>
       </section>
 
+      <section class="content-band" id="pipeline" aria-labelledby="pipeline-title">
+        <div class="section-head">
+          <p class="eyebrow">How it works</p>
+          <h2 id="pipeline-title">Profile first. Encode second. Measure always.</h2>
+          <p>CheapAgent uses the doc2toon browser package as its engine. The UI is the hosted app; doc2toon remains the conversion boundary.</p>
+        </div>
+        <div class="pipeline-grid">
+          <article>
+            <span>1</span>
+            <h3>Read local text</h3>
+            <p>Paste or upload Markdown and plain-text agent files. The current alpha limit is 1000 characters for anonymous use.</p>
+          </article>
+          <article>
+            <span>2</span>
+            <h3>Detect structure</h3>
+            <p>The engine profiles definitions, requirements, rules, tables, and mixed agent-context documents before encoding.</p>
+          </article>
+          <article>
+            <span>3</span>
+            <h3>Convert to TOON</h3>
+            <p>Record-like content can remove repeated field names. Prose may get larger, and the receipt says so when it does.</p>
+          </article>
+          <article>
+            <span>4</span>
+            <h3>Surface warnings</h3>
+            <p>Duplicate, vague, long, and split-candidate warnings are advisory signals. CheapAgent does not silently rewrite your source.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="claims-band" id="claims" aria-labelledby="claims-title">
+        <div>
+          <p class="eyebrow">Claims boundary</p>
+          <h2 id="claims-title">Measure before you claim savings.</h2>
+          <p>CheapAgent is an early alpha for browser-side agent-context measurement. Savings are measured per input and are not guaranteed.</p>
+        </div>
+        <ul>
+          <li>It does process source text locally in the browser.</li>
+          <li>It does not call a hosted LLM API from this page.</li>
+          <li>It does not store document bodies server-side by default.</li>
+          <li>It is not a compliance, legal-assurance, or production-reliability certification system.</li>
+        </ul>
+      </section>
+
       <footer class="alpha-footer">
-        CheapAgent is an early alpha for browser-side agent-context measurement. Savings are measured per input and are not guaranteed.
+        <span>MEASURE. COMPRESS. DEFEND. OPTIMIZE.</span>
+        <span>Independent project built on doc2toon and TOON. Not affiliated with the TOON project.</span>
       </footer>
     </main>
   </div>

@@ -39,5 +39,6 @@ pnpm-debug.log*
 !public/
 !public/assets/
 !public/assets/cheapagent-brand.png
+!public/assets/cheapagent-logo-knockout.png
 !public/assets/cheapagent1-1.png
 !public/assets/cheapagent1-1.svg

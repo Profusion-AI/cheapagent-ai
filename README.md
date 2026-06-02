@@ -7,7 +7,7 @@ The v0.1 app processes pasted or uploaded `.md` / `.txt` content in the browser,
 ## Status
 
 - Version: `0.1.0` alpha
-- Deployment target: `https://cheapagent.ai/`
+- Deployment target: `https://cheapagent.ai/` after Netlify custom-domain SSL is bound
 - Hosting target: Netlify static site
 - Indexing posture: `noindex, nofollow` until public launch copy and product posture are approved
 
@@ -19,10 +19,10 @@ CheapAgent depends on the public package boundary:
 import { convertTextToToon } from "doc2toon/browser";
 ```
 
-`doc2toon` is not published to npm yet, so this repo temporarily depends on:
+`doc2toon` is not published to npm yet, so this repo temporarily depends on an immutable packaging commit:
 
 ```json
-"doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#main"
+"doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#1492f12343623ada7159c6d90ddae5646e019382"
 ```
 
 When `doc2toon` is published, replace that dependency with the npm version, for example `^0.1.1`.

@@ -20,6 +20,9 @@ const warningsList = document.querySelector("#warnings-list");
 const output = document.querySelector("#output");
 const copyButton = document.querySelector("#copy-button");
 const downloadButton = document.querySelector("#download-button");
+const themeToggle = document.querySelector("#theme-toggle");
+const heroDelta = document.querySelector("#hero-delta");
+const visualDelta = document.querySelector("#visual-delta");
 
 let latestToon = "";
 let latestFilename = "cheapagent-output.toon";
@@ -159,6 +162,16 @@ function setNotice(message) {
   inputNotice.textContent = message;
 }
 
+function setTheme(theme) {
+  const nextTheme = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = nextTheme;
+  try {
+    localStorage.setItem("cheapagent-theme", nextTheme);
+  } catch {
+    // Theme persistence is optional.
+  }
+}
+
 function updateCharCount() {
   const count = sourceInput.value.length;
   charCount.textContent = `${formatNumber(count)} / ${formatNumber(CHAR_LIMIT)} chars`;
@@ -191,6 +204,8 @@ function resetOutput(message = "Run the measurement to see source size, output s
   latestToon = "";
   copyButton.disabled = true;
   downloadButton.disabled = true;
+  heroDelta.textContent = "measured";
+  visualDelta.textContent = "run";
 }
 
 function renderWarnings(result) {
@@ -227,7 +242,7 @@ function renderWarnings(result) {
   }
 
   if (cards.length === 0) {
-    warningsList.innerHTML = '<p class="empty-state">No optimizer warnings for this input. Clean does not mean universally compressed; it means no current advisory signal fired.</p>';
+    warningsList.innerHTML = '<p class="empty-state">No optimizer warnings for this input. Clean does not mean compressed; it means no current advisory signal fired.</p>';
     return;
   }
 
@@ -275,6 +290,8 @@ function runConversion() {
     tokenDelta.textContent = formatSigned(tokenSavings);
     tokenPercent.textContent = larger ? `${formatPercent(Math.abs(tokenSavingsPercent))} larger` : `${formatPercent(tokenSavingsPercent)} saved`;
     tokenDelta.style.color = optimized ? "var(--color-optimized)" : larger ? "var(--color-text-muted)" : "var(--color-primary)";
+    heroDelta.textContent = larger ? `${formatPercent(Math.abs(tokenSavingsPercent))} larger` : `${formatPercent(tokenSavingsPercent)} saved`;
+    visualDelta.textContent = larger ? "larger" : optimized ? "saved" : "flat";
 
     resultSummary.textContent = `${config.label}: ${result.profile.name} profile, ${result.lossless ? "lossless" : "lossy"} output, delimiter "${result.delimiter}". Savings are measured for this input only.`;
     setStatus(optimized ? "optimized" : "measured", optimized ? "optimized" : "info");
@@ -406,6 +423,14 @@ document.querySelectorAll('input[name="mode"]').forEach((input) => {
 sampleButton.addEventListener("click", loadSample);
 copyButton.addEventListener("click", copyOutput);
 downloadButton.addEventListener("click", downloadOutput);
+themeToggle.addEventListener("click", () => {
+  setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+});
+
+try {
+  setTheme(localStorage.getItem("cheapagent-theme") ?? "dark");
+} catch {
+  setTheme("dark");
+}
 
 loadSample();
-

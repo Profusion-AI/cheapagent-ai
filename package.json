@@ -11,7 +11,7 @@
     "lint": "npm run build"
   },
   "dependencies": {
-    "doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#main"
+    "doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#1492f12343623ada7159c6d90ddae5646e019382"
   },
   "devDependencies": {
     "vite": "^7.2.4"
