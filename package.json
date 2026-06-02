@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5174",
-    "build": "vite build",
+    "build": "vite build && node scripts/apply-deploy-env.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4174",
     "lint": "npm run build"
   },

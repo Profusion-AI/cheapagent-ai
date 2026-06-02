@@ -48,6 +48,23 @@ Do not detach or move the custom domain until the new production site has a succ
 
 If the staging site tracks a branch, set its production branch to `staging`. If the staging site should mirror `main` after approved releases, keep its production branch on `main` and deploy staging manually before moving production.
 
+## Development Approach
+
+Use this lane model once the two-site split exists:
+
+```text
+feature branch -> PR/deploy preview -> staging branch -> cheapagent.netlify.app -> main -> cheapagent.ai
+```
+
+Operating rules:
+
+- Feature branches should use Netlify deploy previews for UI review and browser smoke.
+- `staging` is the integration lane for Claude/Codex/frontend work in progress.
+- `main` is production and should only receive work after the staging build passes the verification gates below.
+- The staging Netlify site should have production branch `staging`.
+- The production Netlify site should have production branch `main`.
+- Do not move `cheapagent.ai` / `www.cheapagent.ai` unless the target production site already has a successful deploy.
+
 ## Environment Labels
 
 Set these per Netlify site, not in source control:
@@ -67,7 +84,14 @@ VITE_CHEAPAGENT_CANONICAL_URL=https://cheapagent.netlify.app
 VITE_CHEAPAGENT_NOINDEX=true
 ```
 
-The current app does not require these variables to build. They are reserved for future environment-specific UI, analytics, and robots behavior.
+The build now consumes these variables after Vite finishes. Production output is indexable by default. Staging and deploy-preview output emits:
+
+- `<meta name="robots" content="noindex, nofollow">`
+- `robots.txt` with `Disallow: /`
+- an empty sitemap
+- a generated `_headers` file with `X-Robots-Tag: noindex, nofollow`
+
+This lets the same source tree build differently per Netlify site without keeping separate production and staging source files.
 
 ## Verification Gates
 

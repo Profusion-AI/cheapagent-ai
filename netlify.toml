@@ -2,6 +2,17 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  NODE_VERSION = "20"
+
+[context.branch-deploy.environment]
+  VITE_CHEAPAGENT_ENV = "staging"
+  VITE_CHEAPAGENT_NOINDEX = "true"
+
+[context.deploy-preview.environment]
+  VITE_CHEAPAGENT_ENV = "staging"
+  VITE_CHEAPAGENT_NOINDEX = "true"
+
 [[headers]]
   for = "/*"
   [headers.values]

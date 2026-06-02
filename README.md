@@ -52,6 +52,20 @@ Recommended project settings:
 
 The domain DNS is managed through Netlify DNS. The final site/domain/SSL binding happens in Netlify, not in this repository.
 
+The build runs `scripts/apply-deploy-env.mjs` after Vite to generate environment-specific canonical, robots, sitemap, and noindex header artifacts. For the two-site model, set these Netlify environment variables per site:
+
+```text
+# Production
+VITE_CHEAPAGENT_ENV=production
+VITE_CHEAPAGENT_CANONICAL_URL=https://cheapagent.ai
+VITE_CHEAPAGENT_NOINDEX=false
+
+# Staging
+VITE_CHEAPAGENT_ENV=staging
+VITE_CHEAPAGENT_CANONICAL_URL=https://cheapagent.netlify.app
+VITE_CHEAPAGENT_NOINDEX=true
+```
+
 See [docs/deployment-topology.md](docs/deployment-topology.md) for the staging/production model. The short version: `cheapagent.netlify.app` can be staging only if staging and production are separate Netlify sites; on a single Netlify site, the default Netlify domain mirrors the production custom domain.
 
 ## Claims Boundary
