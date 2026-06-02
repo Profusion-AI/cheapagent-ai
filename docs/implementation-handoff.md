@@ -26,18 +26,19 @@
 
 Brand assets live in `public/assets/`:
 
-- `cheapagent1-1.png`: primary square visual and Open Graph image.
+- `cheapagent-logo-knockout.png`: current primary logo, favicon, and Open Graph image.
+- `cheapagent1-1.png`: square visual/reference asset.
 - `cheapagent1-1.svg`: vector source candidate.
 - `cheapagent-brand.png`: tall brand/reference visual.
 
-The page uses `cheapagent1-1.png` in the first viewport without blocking the workbench path.
+The page uses `cheapagent-logo-knockout.png` in the first viewport without blocking the workbench path.
 
 ## Temporary Dependency
 
-`doc2toon` is not currently published to npm. This app temporarily uses:
+`doc2toon` is not currently published to npm. This app temporarily uses an immutable packaging commit:
 
 ```json
-"doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#main"
+"doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#1492f12343623ada7159c6d90ddae5646e019382"
 ```
 
 Swap this to the npm package once available.
@@ -50,8 +51,10 @@ Swap this to the npm package once available.
 4. Verify the page renders on desktop and mobile.
 5. Verify sample measurement runs without console import errors.
 6. Verify output copy/download controls enable after a successful run.
-7. Verify `public/assets/cheapagent1-1.png` renders and remains responsive.
+7. Verify `public/assets/cheapagent-logo-knockout.png` renders and remains responsive.
 8. Deploy with Netlify using build command `npm run build` and publish directory `dist`.
 9. Bind `cheapagent.ai` and `www.cheapagent.ai` in Netlify and wait for SSL.
 
 The repo intentionally keeps `noindex, nofollow` headers until public launch posture is approved.
+
+For staging vs production site ownership, see `docs/deployment-topology.md`.

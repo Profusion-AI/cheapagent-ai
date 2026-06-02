@@ -52,6 +52,8 @@ Recommended project settings:
 
 The domain DNS is managed through Netlify DNS. The final site/domain/SSL binding happens in Netlify, not in this repository.
 
+See [docs/deployment-topology.md](docs/deployment-topology.md) for the staging/production model. The short version: `cheapagent.netlify.app` can be staging only if staging and production are separate Netlify sites; on a single Netlify site, the default Netlify domain mirrors the production custom domain.
+
 ## Claims Boundary
 
 Savings are measured per input and are not guaranteed. CheapAgent v0.1 is not a compliance system, storage service, hosted LLM workflow, or proof of production-scale reliability.
