@@ -26,6 +26,7 @@ Beta release: lightweight sign-in and a server-enforced daily allowance.
 - Adopted the staging-lane ("drive aesthetic") copy and design across the landing page: new three-line hero ("Cut context bloat. Optimize token budgets. Improve agentic outputs."), verdict-driven workbench ("To TOONify or not?" with a yes/no verdict card, "Run check", "Bloat warnings"), three-pillar engine section, static before/after TOON examples, scroll-reveal animations, and the "Different output. Same task. Less waste." footer.
 - Workbench starts empty with a placeholder; Load sample no longer auto-runs and Reset clears the input. Mode tabs gained arrow-key navigation. The per-run `maxlength` attribute was dropped in favor of the dynamic JS limit so signed-in users can paste beyond 1,000 characters.
 - `llms.txt` updated from v0.1-alpha to v0.2-beta posture, including the sign-in allowance and privacy page.
+- Usage debits are now atomic: the function reads the profile with its ETag, writes with a compare-and-swap (`onlyIfMatch`/`onlyIfNew`), and retries on conflict, with strong-consistency reads. Concurrent conversions can no longer double-spend or overwrite the daily counter. Sustained contention returns 503, which the client already treats as "fall back to the anonymous limit".
 
 ### Not in this release
 
