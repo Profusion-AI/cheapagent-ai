@@ -12,6 +12,7 @@ Beta release: lightweight sign-in and a server-enforced daily allowance.
 - 15000-characters-per-day allowance for signed-in users, enforced by a new Netlify Function (`netlify/functions/usage.mjs`) that debits character counts against a per-user daily counter in Netlify Blobs. Only counts are transmitted; document bodies never leave the browser.
 - Minimal shadow profile per user: id, email, plan, today's usage counters, created/last-seen timestamps. Previous days' counters are discarded on each request.
 - Plain-language privacy page at `/privacy.html`, linked from the footer and included in the sitemap.
+- Storage-consent banner on first visit (`src/consent.js`), shown on both pages: "Allow all" or "Essential only". CheapAgent sets no advertising or analytics cookies; the choice governs optional storage (theme preference). Choosing essential-only clears and disables theme persistence. A "Cookie preferences" footer link reopens the choice.
 - Account chip in the nav with email and sign-out; live "characters left today" readout next to the input counter.
 - Vite multi-page build (`vite.config.js`) covering the privacy page.
 

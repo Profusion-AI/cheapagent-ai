@@ -1,5 +1,6 @@
 import { convertTextToToon } from "doc2toon/browser";
 import { initAuth, onAuthChange, currentUser, openSignIn, signOut, authToken } from "./auth.js";
+import { initConsentBanner, functionalStorageAllowed } from "./consent.js";
 
 const ANON_CHAR_LIMIT = 1000;
 const DAILY_CHAR_LIMIT = 15000;
@@ -209,6 +210,9 @@ function setPanelState(state) {
 function setTheme(theme) {
   const nextTheme = theme === "light" ? "light" : "dark";
   root.dataset.theme = nextTheme;
+  if (!functionalStorageAllowed()) {
+    return;
+  }
   try {
     localStorage.setItem("cheapagent-theme", nextTheme);
   } catch {
@@ -656,6 +660,20 @@ onAuthChange((user) => {
 
 initAuth();
 renderAuth(currentUser());
+
+initConsentBanner({
+  onChange: (choice) => {
+    if (choice === "all") {
+      setTheme(root.dataset.theme);
+      return;
+    }
+    try {
+      localStorage.removeItem("cheapagent-theme");
+    } catch {
+      // Nothing stored means nothing to clear.
+    }
+  },
+});
 
 window.addEventListener("scroll", updateNav, { passive: true });
 

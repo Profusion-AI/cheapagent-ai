@@ -9,6 +9,7 @@
   <link rel="canonical" href="https://cheapagent.ai/privacy.html">
   <link rel="stylesheet" href="/src/tokens.css">
   <link rel="stylesheet" href="/src/styles.css">
+  <script type="module" src="/src/privacy-page.js"></script>
   <style>
     .legal-wrap { max-width: 760px; margin: 0 auto; padding: 110px 20px 80px; }
     .legal-wrap h1 { font-size: 2rem; margin-bottom: 0.4rem; }
@@ -62,7 +63,13 @@
     <p>You can use CheapAgent without an account. Anonymous use makes no network requests with your content or its size; the 1,000-character limit is applied in your browser.</p>
 
     <h2>Cookies and local storage</h2>
-    <p>CheapAgent uses browser local storage for two things: your light/dark theme preference, and your Netlify Identity session token if you sign in. There are no advertising or analytics cookies.</p>
+    <p>CheapAgent sets <strong>no advertising or analytics cookies</strong>. Browser local storage is used for at most three things:</p>
+    <ul>
+      <li><strong>Sign-in session</strong> (essential) &mdash; your Netlify Identity token, only if you sign in.</li>
+      <li><strong>Theme preference</strong> (optional) &mdash; remembers light or dark mode, only if you choose &ldquo;Allow all&rdquo; in the consent banner.</li>
+      <li><strong>Your consent choice itself</strong> (essential) &mdash; so we do not ask again on every visit.</li>
+    </ul>
+    <p>You can <a href="#" data-consent-prefs>change your storage choice</a> at any time; the same link is in the footer of the main page as &ldquo;Cookie preferences&rdquo;.</p>
 
     <h2>Third parties</h2>
     <p>CheapAgent is hosted on <a href="https://www.netlify.com/" target="_blank" rel="noopener">Netlify</a>, and sign-in is provided by Netlify Identity. Netlify processes requests as our hosting provider; see <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">Netlify's privacy policy</a> for how they handle infrastructure-level data such as IP addresses in server logs.</p>

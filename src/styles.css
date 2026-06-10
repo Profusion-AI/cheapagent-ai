@@ -2523,3 +2523,55 @@ button {
     display: none;
   }
 }
+
+/* v0.2 beta: storage-consent banner */
+.consent-banner {
+  position: fixed;
+  inset-inline: 16px;
+  bottom: 16px;
+  z-index: 80;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 14px 18px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.consent-text {
+  margin: 0;
+  flex: 1 1 360px;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.consent-text strong {
+  color: var(--color-text);
+}
+
+.consent-text a {
+  color: var(--color-primary);
+}
+
+.consent-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Auth controls must stay reachable on mobile despite the nav CTA rule. */
+@media (max-width: 760px) {
+  .nav-right #signin-button {
+    display: inline-flex;
+  }
+
+  .nav-right #signin-button[hidden] {
+    display: none;
+  }
+}
