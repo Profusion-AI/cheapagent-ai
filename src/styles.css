@@ -2659,6 +2659,11 @@ button {
   background: var(--color-surface-muted);
 }
 
+/* The display rule above would otherwise defeat the hidden attribute. */
+.account-chip[hidden] {
+  display: none;
+}
+
 .account-email {
   font-size: 0.78rem;
   color: var(--color-text-muted);
