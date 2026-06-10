@@ -5,6 +5,9 @@ node_modules/
 dist/
 .netlify/
 
+# Local agent/editor tooling config (machine-specific paths)
+.claude/
+
 # Local environment and secrets
 .env
 .env.*

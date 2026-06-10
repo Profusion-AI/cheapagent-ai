@@ -2,6 +2,13 @@
   box-sizing: border-box;
 }
 
+/* Several component classes set display, which would otherwise silently
+   defeat the hidden attribute (this bit the sign-in button and account
+   chip). Keep this global so auth-state toggles always win. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   background: var(--color-background);
   color: var(--color-text);
