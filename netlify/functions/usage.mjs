@@ -34,9 +34,11 @@ export const handler = async (event, context) => {
   }
 
   connectLambda(event);
-  // Strong consistency: a quota read must see the latest debit, not a cached
-  // value that can lag behind by up to a minute.
-  const store = getStore({ name: "cheapagent-usage", consistency: "strong" });
+  // Strong-consistency reads are unavailable in lambda-compat functions (no
+  // uncachedEdgeURL in the event context) and throw at request time. Eventual
+  // reads are fine here: correctness rests on the conditional writes below —
+  // a stale read just fails onlyIfMatch and the loop re-reads.
+  const store = getStore("cheapagent-usage");
   const key = `users/${user.sub}`;
   const today = utcDate();
 
