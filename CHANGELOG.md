@@ -29,6 +29,8 @@ Beta release: lightweight sign-in and a server-enforced daily allowance.
 - `llms.txt` updated from v0.1-alpha to v0.2-beta posture, including the sign-in allowance and privacy page.
 - Usage debits are now atomic: the function reads the profile with its ETag, writes with a compare-and-swap (`onlyIfMatch`/`onlyIfNew`), and retries on conflict. Concurrent conversions can no longer double-spend or overwrite the daily counter. Sustained contention returns 503, which the client already treats as "fall back to the anonymous limit". (Reads stay eventually consistent: strong-consistency reads are not available to lambda-compat functions and threw at request time; the conditional write is what enforces correctness.)
 
+- Dependency source swap: `doc2toon` now comes from the npm registry (`^0.2.0`, published with provenance) instead of the git-pinned commit. Engine code is identical; only the supply chain changed.
+
 ### Not in this release
 
 - Billing, paid tiers, multi-file uploads, DOCX/PDF support (see the doc2toon roadmap v0.3 lane).

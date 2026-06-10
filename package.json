@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.9",
-    "doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#1492f12343623ada7159c6d90ddae5646e019382",
+    "doc2toon": "^0.2.0",
     "netlify-identity-widget": "^2.0.3"
   },
   "devDependencies": {
