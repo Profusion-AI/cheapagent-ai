@@ -38,7 +38,7 @@
 
   <main class="legal-wrap">
     <h1>Privacy, in plain language</h1>
-    <p class="legal-updated">Last updated 2026-06-10 &middot; applies to CheapAgent v0.2.1 beta</p>
+    <p class="legal-updated">Last updated 2026-06-10 &middot; applies to CheapAgent v0.2.2 beta</p>
 
     <h2>Your documents stay in your browser</h2>
     <p>When you paste or upload a document, the conversion runs locally in your browser using the open-source <a href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">doc2toon</a> engine. The text of your document is <strong>never uploaded, never stored, and never sent to a server or an LLM API</strong>. This is true whether you are signed in or not.</p>
@@ -67,9 +67,9 @@
     <p>You can use CheapAgent without an account. Anonymous use makes no network requests with your content or its size; the 1,000-character limit is applied in your browser.</p>
 
     <h2>Cookies and local storage</h2>
-    <p>CheapAgent sets <strong>no advertising or analytics cookies</strong>. Browser local storage is used for at most three things:</p>
+    <p>CheapAgent sets <strong>no advertising or analytics cookies</strong>. The only cookies it sets are essential first-party sign-in cookies (<code>nf_jwt</code> and <code>nf_refresh</code>), set by Netlify Identity to keep you signed in &mdash; only if you sign in, and cleared when you sign out. Browser local storage is used for at most three things:</p>
     <ul>
-      <li><strong>Sign-in session</strong> (essential) &mdash; your Netlify Identity token, only if you sign in.</li>
+      <li><strong>Sign-in session</strong> (essential) &mdash; your Netlify Identity token, held in local storage and the sign-in cookies above, only if you sign in.</li>
       <li><strong>Theme preference</strong> (optional) &mdash; remembers light or dark mode, only if you choose &ldquo;Allow all&rdquo; in the consent banner.</li>
       <li><strong>Your consent choice itself</strong> (essential) &mdash; so we do not ask again on every visit.</li>
     </ul>

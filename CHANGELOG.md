@@ -15,6 +15,7 @@ First-party sign-in form; the Identity widget iframe is gone.
 ### Changed
 
 - Quota Bearer-token wiring: the access token now comes from the `@netlify/identity` session (the library's `nf_jwt` cookie hand-off, refreshed via `refreshSession()` near expiry). `netlify/functions/usage.mjs` is unchanged — the library issues the same Netlify Identity JWTs the widget did, so `context.clientContext.user` validation continues to apply.
+- Privacy page discloses the essential first-party sign-in cookies (`nf_jwt`, `nf_refresh`) that `@netlify/identity` sets to keep a session — the widget kept the session only in local storage, so this is a new storage location and is disclosed per the page's promise. Still no advertising or analytics cookies. "Last updated" line bumped to v0.2.2.
 - `netlify-identity-widget` dependency removed.
 
 ## 0.2.1 - 2026-06-10
