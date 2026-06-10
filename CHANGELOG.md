@@ -2,6 +2,21 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.2 - 2026-06-10
+
+First-party sign-in form; the Identity widget iframe is gone.
+
+### Added
+
+- In-page sign-in dialog (`#auth-dialog`, a native `<dialog>`) with sign in, sign up, forgot-password, set-new-password, and confirmation-sent views, themed with the site tokens. Built on `@netlify/identity`, the library Netlify recommends for new Identity work. Netlify Identity still owns credentials; app code hands email/password straight to the library and never stores them.
+- Confirmation (`#confirmation_token`), recovery (`#recovery_token`), and invite (`#invite_token`) links are processed on page load via `handleAuthCallback()`; recovery opens the set-new-password view, invites open a choose-password view.
+- `llms.txt` agent interface updated: the iframe caveat is removed and the dialog's stable element ids and `data-view` states are documented — agents can now reach the sign-in form by ordinary DOM references.
+
+### Changed
+
+- Quota Bearer-token wiring: the access token now comes from the `@netlify/identity` session (the library's `nf_jwt` cookie hand-off, refreshed via `refreshSession()` near expiry). `netlify/functions/usage.mjs` is unchanged — the library issues the same Netlify Identity JWTs the widget did, so `context.clientContext.user` validation continues to apply.
+- `netlify-identity-widget` dependency removed.
+
 ## 0.2.1 - 2026-06-10
 
 Aggregate daily usage counters, disclosed on the privacy page in the same release.

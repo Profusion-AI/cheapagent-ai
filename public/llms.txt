@@ -55,7 +55,8 @@ For agents operating the workbench page on a user's behalf, this DOM contract is
 - `#source-tokens`, `#toon-tokens`, `#token-delta`, `#token-percent` — measured result for this input.
 - `#output` — TOON output text; `#copy-button`, `#download-button` — output actions.
 - `#char-count` — current per-run limit; `#quota-meta` — signed-in daily allowance remaining; `#input-notice` — status notices (quota blocks, fallbacks, errors). The notice, quota, and verdict regions are `aria-live`.
-- `#signin-button`, `#account-email`, `#signout-button` — auth controls. The sign-in/sign-up dialog is currently the Netlify Identity widget rendered inside a same-origin iframe (`#netlify-identity-widget`); element queries from the top document do not reach it — script it via the iframe's `contentDocument` if you must, or prefer the CLI. A first-party in-page form is planned.
+- `#signin-button`, `#account-email`, `#signout-button` — auth controls.
+- `#auth-dialog` — first-party sign-in dialog (a native `<dialog>` in the page DOM as of v0.2.2; no iframe — all elements are reachable by ordinary queries). Its `data-view` attribute reflects the active view: `login`, `signup`, `forgot`, `reset`, `sent`, or `notice`. Inside it: `#auth-tab-login` / `#auth-tab-signup` switch modes; `#auth-email`, `#auth-password`, `#auth-new-password` are the inputs (inputs outside the active view are `disabled`); `#auth-submit` submits; `#auth-forgot` / `#auth-back` switch to and from password recovery; `#auth-status` is an `aria-live` error/progress region; `#auth-close` closes. Credentials go directly to Netlify Identity.
 - `[data-consent-choice="all"|"essential"]` — storage-consent banner buttons; `[data-consent-prefs]` — reopens the choice.
 
 Anonymous use of the page makes no network requests with document content or character counts; signed-in quota checks transmit character counts only.

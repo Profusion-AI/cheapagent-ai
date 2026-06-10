@@ -361,5 +361,52 @@
       </div>
     </div>
   </footer>
+
+  <!-- First-party sign-in dialog (v0.2.2). Netlify Identity still owns
+       credentials; this form hands them straight to @netlify/identity.
+       Element ids are part of the llms.txt agent interface contract. -->
+  <dialog class="auth-dialog" id="auth-dialog" data-view="login" aria-labelledby="auth-title">
+    <div class="auth-head">
+      <h2 class="auth-title" id="auth-title">Sign in</h2>
+      <button class="icon-btn" type="button" id="auth-close" aria-label="Close dialog" title="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+
+    <div class="auth-tabs" role="tablist" aria-label="Sign in or create an account" data-views="login signup">
+      <button class="auth-tab" type="button" role="tab" id="auth-tab-login" aria-selected="true">Sign in</button>
+      <button class="auth-tab" type="button" role="tab" id="auth-tab-signup" aria-selected="false">Sign up</button>
+    </div>
+
+    <p class="auth-message" id="auth-message" data-views="reset sent notice"></p>
+
+    <form class="auth-form" id="auth-form" novalidate>
+      <label class="auth-field" data-views="login signup forgot">
+        <span>Email</span>
+        <input type="email" id="auth-email" name="email" autocomplete="email" required>
+      </label>
+      <label class="auth-field" data-views="login signup">
+        <span>Password</span>
+        <input type="password" id="auth-password" name="password" autocomplete="current-password" required>
+      </label>
+      <label class="auth-field" data-views="reset">
+        <span>New password</span>
+        <input type="password" id="auth-new-password" name="new-password" autocomplete="new-password" required disabled>
+      </label>
+
+      <p class="auth-status" id="auth-status" role="status" aria-live="polite"></p>
+
+      <button class="btn btn-accent auth-submit" type="submit" id="auth-submit" data-views="login signup forgot reset">
+        <span class="lbl">Sign in</span>
+      </button>
+
+      <div class="auth-links">
+        <button class="auth-link" type="button" id="auth-forgot" data-views="login">Forgot password?</button>
+        <button class="auth-link" type="button" id="auth-back" data-views="forgot sent">Back to sign in</button>
+      </div>
+    </form>
+
+    <p class="auth-fineprint" data-views="login signup">Credentials are handled by Netlify Identity. CheapAgent never sees or stores your password. <a href="/privacy.html">Privacy</a></p>
+  </dialog>
 </body>
 </html>

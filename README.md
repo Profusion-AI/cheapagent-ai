@@ -6,7 +6,7 @@ The app processes pasted or uploaded `.md` / `.txt` content in the browser, repo
 
 ## Status
 
-- Version: `0.2.1` beta
+- Version: `0.2.2` beta
 - Deployment target: `https://cheapagent.ai/`
 - Hosting target: Netlify static site plus one Netlify Function for usage accounting
 - Indexing posture: production is indexable; staging should remain noindex through a separate Netlify site or branch-specific configuration
@@ -14,7 +14,7 @@ The app processes pasted or uploaded `.md` / `.txt` content in the browser, repo
 ## v0.2 Beta: Sign-in and Daily Allowance
 
 - Anonymous use is unchanged: fully local, 1000-character limit, no network requests with content or counts.
-- Netlify Identity owns credentials (email sign-up with confirmation). CheapAgent code never sees a password.
+- Netlify Identity owns credentials (email sign-up with confirmation). CheapAgent code never stores a password; since v0.2.2 the sign-in form is a first-party in-page dialog built on `@netlify/identity` (the widget iframe is gone), and email/password go straight to the library.
 - Signed-in users get 15000 characters per day, enforced server-side by `netlify/functions/usage.mjs`: before each conversion the browser sends only the character count to debit; the document body never leaves the page.
 - Stored account data is minimal: user id, email, plan, today's character/conversion counters, created/last-seen timestamps. Counters from previous days are discarded. Storage lives in Netlify Blobs (`cheapagent-usage` store).
 - Since v0.2.1 the usage function also records site-wide aggregate daily totals (`metrics/daily/YYYY-MM-DD` in the same store): PII-free integer counters of signed-in activity, production-gated, non-blocking, pruned after ~400 days, and disclosed on the privacy page. Anonymous use still makes no network requests.
