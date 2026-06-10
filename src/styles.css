@@ -2493,3 +2493,33 @@ button {
     text-align: left;
   }
 }
+
+/* v0.2 beta: account chip and quota */
+.account-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+}
+
+.account-email {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#quota-meta {
+  color: var(--color-optimized);
+}
+
+@media (max-width: 720px) {
+  .account-email {
+    display: none;
+  }
+}

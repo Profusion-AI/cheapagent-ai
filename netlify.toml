@@ -5,6 +5,9 @@
 [build.environment]
   NODE_VERSION = "20"
 
+[functions]
+  directory = "netlify/functions"
+
 [context.branch-deploy.environment]
   VITE_CHEAPAGENT_ENV = "staging"
   VITE_CHEAPAGENT_NOINDEX = "true"

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="green">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CheapAgent privacy page: documents are processed in your browser, and signed-in accounts store only minimal usage metadata.">
+  <title>CheapAgent - Privacy</title>
+  <link rel="icon" href="/assets/cheapagent-logo-knockout.png" type="image/png">
+  <link rel="canonical" href="https://cheapagent.ai/privacy.html">
+  <link rel="stylesheet" href="/src/tokens.css">
+  <link rel="stylesheet" href="/src/styles.css">
+  <style>
+    .legal-wrap { max-width: 760px; margin: 0 auto; padding: 110px 20px 80px; }
+    .legal-wrap h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+    .legal-wrap .legal-updated { color: var(--color-text-subtle); font-size: 0.85rem; }
+    .legal-wrap h2 { margin-top: 2.2rem; font-size: 1.2rem; }
+    .legal-wrap p, .legal-wrap li { color: var(--color-text-muted); line-height: 1.65; }
+    .legal-wrap ul { padding-left: 1.2rem; }
+    .legal-wrap strong { color: var(--color-text); }
+  </style>
+</head>
+<body>
+  <div class="bg-field" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <nav class="nav scrolled" id="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/" aria-label="CheapAgent home">
+        <img class="brand-logo" src="/assets/cheapagent-logo-knockout.png" alt="">
+        <span class="wm">cheap<b>agent</b></span>
+      </a>
+      <div class="nav-right">
+        <a class="btn btn-line btn-sm" href="/">Back to workbench</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="legal-wrap">
+    <h1>Privacy, in plain language</h1>
+    <p class="legal-updated">Last updated 2026-06-10 &middot; applies to CheapAgent v0.2 beta</p>
+
+    <h2>Your documents stay in your browser</h2>
+    <p>When you paste or upload a document, the conversion runs locally in your browser using the open-source <a href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">doc2toon</a> engine. The text of your document is <strong>never uploaded, never stored, and never sent to a server or an LLM API</strong>. This is true whether you are signed in or not.</p>
+
+    <h2>What we store if you sign in</h2>
+    <p>Signing in raises your daily allowance from 1,000 characters per run to 15,000 characters per day. To enforce that limit we keep a minimal account record:</p>
+    <ul>
+      <li>Your user id and email address (managed by Netlify Identity).</li>
+      <li>How many characters and conversions you have used today.</li>
+      <li>Timestamps for when the account was created and last used.</li>
+    </ul>
+    <p>That is the whole list. <strong>No document bodies, no document titles, no conversion history.</strong> When your browser checks your remaining allowance, it sends only a character count &mdash; a number &mdash; not the text itself. Counters from previous days are discarded; we keep only today's totals.</p>
+
+    <h2>What we never store</h2>
+    <ul>
+      <li>The contents of anything you paste or upload.</li>
+      <li>Your converted TOON output.</li>
+      <li>Passwords &mdash; credentials are handled entirely by Netlify Identity, not by CheapAgent code.</li>
+    </ul>
+
+    <h2>Anonymous use</h2>
+    <p>You can use CheapAgent without an account. Anonymous use makes no network requests with your content or its size; the 1,000-character limit is applied in your browser.</p>
+
+    <h2>Cookies and local storage</h2>
+    <p>CheapAgent uses browser local storage for two things: your light/dark theme preference, and your Netlify Identity session token if you sign in. There are no advertising or analytics cookies.</p>
+
+    <h2>Third parties</h2>
+    <p>CheapAgent is hosted on <a href="https://www.netlify.com/" target="_blank" rel="noopener">Netlify</a>, and sign-in is provided by Netlify Identity. Netlify processes requests as our hosting provider; see <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">Netlify's privacy policy</a> for how they handle infrastructure-level data such as IP addresses in server logs.</p>
+
+    <h2>No billing in v0.2</h2>
+    <p>The v0.2 beta has no paid tier and collects no payment information.</p>
+
+    <h2>Questions or deletion requests</h2>
+    <p>To ask a question or have your account record deleted, open an issue at <a href="https://github.com/Profusion-AI/cheapagent-ai" target="_blank" rel="noopener">github.com/Profusion-AI/cheapagent-ai</a> or contact the maintainer listed there. Because we store so little, deletion means removing your Identity account and the usage counter keyed to it.</p>
+
+    <h2>Changes</h2>
+    <p>If this page changes in a way that affects what is stored, the change will be noted in the project changelog with the date.</p>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-bottom">
+        <span>MEASURE. COMPRESS. DEFEND. OPTIMIZE.</span>
+        <span>Independent project built on TOON. Not affiliated with the TOON project.</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

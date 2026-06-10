@@ -1,6 +1,6 @@
 {
   "name": "cheapagent-ai",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Browser-side context efficiency workbench for measuring and converting agent documents with doc2toon.",
   "type": "module",
@@ -11,7 +11,9 @@
     "lint": "npm run build"
   },
   "dependencies": {
-    "doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#1492f12343623ada7159c6d90ddae5646e019382"
+    "@netlify/blobs": "^10.7.9",
+    "doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#1492f12343623ada7159c6d90ddae5646e019382",
+    "netlify-identity-widget": "^2.0.3"
   },
   "devDependencies": {
     "vite": "^7.2.4"

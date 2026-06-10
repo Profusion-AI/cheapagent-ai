@@ -2,14 +2,25 @@
 
 CheapAgent is an early browser-side workbench for measuring and converting agent-context documents with `doc2toon`.
 
-The v0.1 app processes pasted or uploaded `.md` / `.txt` content in the browser, reports measured character and token deltas, surfaces optimizer warnings, and emits TOON output for review. It does not call a hosted LLM API or store document bodies server-side.
+The app processes pasted or uploaded `.md` / `.txt` content in the browser, reports measured character and token deltas, surfaces optimizer warnings, and emits TOON output for review. It does not call a hosted LLM API or store document bodies server-side.
 
 ## Status
 
-- Version: `0.1.0` alpha
+- Version: `0.2.0` beta
 - Deployment target: `https://cheapagent.ai/`
-- Hosting target: Netlify static site
+- Hosting target: Netlify static site plus one Netlify Function for usage accounting
 - Indexing posture: production is indexable; staging should remain noindex through a separate Netlify site or branch-specific configuration
+
+## v0.2 Beta: Sign-in and Daily Allowance
+
+- Anonymous use is unchanged: fully local, 1000-character limit, no network requests with content or counts.
+- Netlify Identity owns credentials (email sign-up with confirmation). CheapAgent code never sees a password.
+- Signed-in users get 15000 characters per day, enforced server-side by `netlify/functions/usage.mjs`: before each conversion the browser sends only the character count to debit; the document body never leaves the page.
+- Stored account data is minimal: user id, email, plan, today's character/conversion counters, created/last-seen timestamps. Counters from previous days are discarded. Storage lives in Netlify Blobs (`cheapagent-usage` store).
+- Plain-language privacy page at `/privacy.html`.
+- No billing in v0.2.
+
+Site setup: enable Identity on the Netlify site (registration: open or invite-only as preferred; email confirmation on). No extra environment variables are required for Blobs or the function.
 
 ## Dependency Boundary
 
@@ -25,7 +36,13 @@ import { convertTextToToon } from "doc2toon/browser";
 "doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#1492f12343623ada7159c6d90ddae5646e019382"
 ```
 
-When `doc2toon` is published, replace that dependency with the npm version, for example `^0.1.1`.
+When `doc2toon` is published (the v0.2.0 tag workflow publishes it), replace that dependency with the npm version:
+
+```bash
+npm install doc2toon@^0.2.0
+```
+
+The pinned commit and doc2toon 0.2.0 have identical library code, so the swap is a dependency-source change only.
 
 ## Local Development
 
@@ -70,4 +87,4 @@ See [docs/deployment-topology.md](docs/deployment-topology.md) for the staging/p
 
 ## Claims Boundary
 
-Savings are measured per input and are not guaranteed. CheapAgent v0.1 is not a compliance system, storage service, hosted LLM workflow, or proof of production-scale reliability.
+Savings are measured per input and are not guaranteed. CheapAgent v0.2 is not a compliance system, storage service, hosted LLM workflow, or proof of production-scale reliability.

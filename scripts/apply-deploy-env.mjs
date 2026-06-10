@@ -1,7 +1,8 @@
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const distDir = new URL("../dist/", import.meta.url);
+const distDir = fileURLToPath(new URL("../dist/", import.meta.url));
 const deployContext = process.env.CONTEXT || "";
 const explicitEnv = process.env.VITE_CHEAPAGENT_ENV || "";
 const envName = normalizeEnv(
@@ -16,10 +17,11 @@ const noindex =
   explicitNoindex === "true" ||
   (explicitNoindex !== "false" && (envName !== "production" || deployContext === "deploy-preview"));
 
-const indexPath = join(distDir.pathname, "index.html");
-const robotsPath = join(distDir.pathname, "robots.txt");
-const sitemapPath = join(distDir.pathname, "sitemap.xml");
-const headersPath = join(distDir.pathname, "_headers");
+const indexPath = join(distDir, "index.html");
+const privacyPath = join(distDir, "privacy.html");
+const robotsPath = join(distDir, "robots.txt");
+const sitemapPath = join(distDir, "sitemap.xml");
+const headersPath = join(distDir, "_headers");
 const logoUrl = `${canonicalUrl}/assets/cheapagent-logo-knockout.png`;
 
 if (!existsSync(indexPath)) {
@@ -43,6 +45,16 @@ html = replaceMeta(html, "property", "og:image", logoUrl);
 html = replaceMeta(html, "name", "twitter:image", logoUrl);
 writeFileSync(indexPath, html);
 
+if (existsSync(privacyPath)) {
+  let privacyHtml = readFileSync(privacyPath, "utf8");
+  privacyHtml = upsertMeta(privacyHtml, "name", "cheapagent:environment", envName);
+  privacyHtml = noindex
+    ? upsertMeta(privacyHtml, "name", "robots", "noindex, nofollow")
+    : removeMeta(privacyHtml, "name", "robots");
+  privacyHtml = replaceLink(privacyHtml, "canonical", `${canonicalUrl}/privacy.html`);
+  writeFileSync(privacyPath, privacyHtml);
+}
+
 if (noindex) {
   writeFileSync(robotsPath, "User-agent: *\nDisallow: /\n");
   writeFileSync(
@@ -55,7 +67,7 @@ if (noindex) {
   writeFileSync(robotsPath, `User-agent: *\nAllow: /\n\nSitemap: ${canonicalUrl}/sitemap.xml\n`);
   writeFileSync(
     sitemapPath,
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${canonicalUrl}/</loc>\n    <lastmod>${today}</lastmod>\n  </url>\n</urlset>\n`,
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${canonicalUrl}/</loc>\n    <lastmod>${today}</lastmod>\n  </url>\n  <url>\n    <loc>${canonicalUrl}/privacy.html</loc>\n    <lastmod>${today}</lastmod>\n  </url>\n</urlset>\n`,
   );
   if (existsSync(headersPath)) {
     rmSync(headersPath);

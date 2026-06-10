@@ -1,6 +1,9 @@
 import { convertTextToToon } from "doc2toon/browser";
+import { initAuth, onAuthChange, currentUser, openSignIn, signOut, authToken } from "./auth.js";
 
-const CHAR_LIMIT = 1000;
+const ANON_CHAR_LIMIT = 1000;
+const DAILY_CHAR_LIMIT = 15000;
+const USAGE_ENDPOINT = "/.netlify/functions/usage";
 
 const root = document.documentElement;
 const nav = document.querySelector("#nav");
@@ -11,6 +14,12 @@ const sampleButton = document.querySelector("#sample-button");
 const resetButton = document.querySelector("#reset-button");
 const themeToggle = document.querySelector("#theme-toggle");
 const ctaCopy = document.querySelector("#cta-copy");
+
+const signinButton = document.querySelector("#signin-button");
+const accountChip = document.querySelector("#account-chip");
+const accountEmail = document.querySelector("#account-email");
+const signoutButton = document.querySelector("#signout-button");
+const quotaMeta = document.querySelector("#quota-meta");
 
 const srcName = document.querySelector("#src-name");
 const charCount = document.querySelector("#char-count");
@@ -50,6 +59,7 @@ let activeMode = "claude";
 let latestToon = "";
 let latestFilename = "cheapagent-output.toon";
 let usingSample = true;
+let dailyQuota = null;
 
 const samples = {
   claude: `# CLAUDE.md
@@ -218,15 +228,84 @@ function updateModeButtons() {
   });
 }
 
+function charLimit() {
+  return currentUser() ? DAILY_CHAR_LIMIT : ANON_CHAR_LIMIT;
+}
+
 function updateCharCount() {
-  charCount.textContent = `${formatNumber(sourceInput.value.length)} / ${formatNumber(CHAR_LIMIT)} chars`;
+  charCount.textContent = `${formatNumber(sourceInput.value.length)} / ${formatNumber(charLimit())} chars`;
 }
 
 function enforceLimit(text) {
-  if (text.length <= CHAR_LIMIT) {
+  const limit = charLimit();
+  if (text.length <= limit) {
     return { text, truncated: false };
   }
-  return { text: text.slice(0, CHAR_LIMIT), truncated: true };
+  return { text: text.slice(0, limit), truncated: true };
+}
+
+function renderQuota() {
+  if (!currentUser()) {
+    quotaMeta.hidden = true;
+    return;
+  }
+  quotaMeta.hidden = false;
+  quotaMeta.textContent = dailyQuota
+    ? `${formatNumber(dailyQuota.remaining)} of ${formatNumber(dailyQuota.limit)} chars left today`
+    : `up to ${formatNumber(DAILY_CHAR_LIMIT)} chars per day`;
+}
+
+function renderAuth(user) {
+  signinButton.hidden = Boolean(user);
+  accountChip.hidden = !user;
+  accountEmail.textContent = user?.email ?? "";
+  updateCharCount();
+  renderQuota();
+}
+
+async function refreshQuota() {
+  const token = await authToken();
+  if (!token) {
+    dailyQuota = null;
+    renderQuota();
+    return;
+  }
+  try {
+    const response = await fetch(USAGE_ENDPOINT, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (response.ok) {
+      dailyQuota = await response.json();
+    }
+  } catch {
+    // Quota display is informational; the debit call still enforces the limit.
+  }
+  renderQuota();
+}
+
+// Asks the server to debit today's allowance before converting. Only the
+// character count is sent; the document body never leaves the browser.
+async function debitQuota(chars) {
+  const token = await authToken();
+  if (!token) {
+    return { ok: false, reason: "auth" };
+  }
+  try {
+    const response = await fetch(USAGE_ENDPOINT, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ chars }),
+    });
+    if (!response.ok) {
+      return { ok: false, reason: "unavailable" };
+    }
+    const result = await response.json();
+    dailyQuota = result;
+    renderQuota();
+    return result.allowed ? { ok: true } : { ok: false, reason: "quota", remaining: result.remaining };
+  } catch {
+    return { ok: false, reason: "unavailable" };
+  }
 }
 
 function resetOutput(message = "Run the measurement to see source size, output size, warnings, and TOON.") {
@@ -268,7 +347,7 @@ function loadSample({ run = true } = {}) {
   updateCharCount();
   latestFilename = config.filename;
   toonName.textContent = config.filename;
-  setNotice(truncated ? "Sample exceeded the anonymous alpha limit and was truncated." : "Loaded a local sample. No network request was made.");
+  setNotice(truncated ? "Sample exceeded the character limit and was truncated." : "Loaded a local sample. No network request was made.");
   if (run) {
     runConversion();
   } else {
@@ -358,7 +437,7 @@ function renderResult(result, config) {
   setPanelState("live");
 }
 
-function runConversion() {
+async function runConversion() {
   const text = sourceInput.value.trimEnd();
   updateCharCount();
 
@@ -366,6 +445,25 @@ function runConversion() {
     resetOutput("Paste or upload content to measure context efficiency.");
     setNotice("Input is empty.");
     return;
+  }
+
+  if (currentUser() && !usingSample) {
+    const debit = await debitQuota(text.length);
+    if (!debit.ok && (debit.reason === "quota")) {
+      resetOutput("Today's signed-in allowance is used up.");
+      setStatus("limit", "error");
+      setNotice(`Daily limit reached: ${formatNumber(debit.remaining ?? 0)} of ${formatNumber(DAILY_CHAR_LIMIT)} characters left today. The allowance resets at midnight UTC.`);
+      return;
+    }
+    if (!debit.ok && text.length > ANON_CHAR_LIMIT) {
+      resetOutput("The usage service is unreachable, so the signed-in allowance cannot be confirmed.");
+      setStatus("offline", "error");
+      setNotice(`Could not reach the usage service. Inputs up to ${formatNumber(ANON_CHAR_LIMIT)} characters still work without it.`);
+      return;
+    }
+    if (!debit.ok) {
+      setNotice("Usage service unreachable; running under the anonymous limit.");
+    }
   }
 
   const config = selectedConfig();
@@ -485,7 +583,11 @@ sourceInput.addEventListener("input", () => {
   const { text, truncated } = enforceLimit(sourceInput.value);
   if (truncated) {
     sourceInput.value = text;
-    setNotice("Anonymous alpha limit reached at 1000 characters.");
+    setNotice(
+      currentUser()
+        ? `Per-run limit reached at ${formatNumber(DAILY_CHAR_LIMIT)} characters.`
+        : `Anonymous limit reached at ${formatNumber(ANON_CHAR_LIMIT)} characters. Sign in for ${formatNumber(DAILY_CHAR_LIMIT)} characters per day.`,
+    );
   }
   updateCharCount();
 });
@@ -509,7 +611,7 @@ fileInput.addEventListener("change", async () => {
   usingSample = false;
   srcName.textContent = file.name;
   updateCharCount();
-  setNotice(truncated ? `${file.name} was truncated to the anonymous 1000-character limit.` : `Loaded ${file.name} locally.`);
+  setNotice(truncated ? `${file.name} was truncated to the ${formatNumber(charLimit())}-character limit.` : `Loaded ${file.name} locally.`);
   runConversion();
 });
 
@@ -530,6 +632,30 @@ ctaCopy.addEventListener("click", async () => {
   const copied = await copyText("npx doc2toon convert CLAUDE.md --stats");
   setNotice(copied ? "Copied example command." : "Clipboard access is unavailable.");
 });
+
+signinButton.addEventListener("click", openSignIn);
+signoutButton.addEventListener("click", () => {
+  signOut();
+  dailyQuota = null;
+});
+
+onAuthChange((user) => {
+  renderAuth(user);
+  if (user) {
+    refreshQuota();
+  } else {
+    dailyQuota = null;
+    const { text, truncated } = enforceLimit(sourceInput.value);
+    if (truncated) {
+      sourceInput.value = text;
+      setNotice(`Signed out: input trimmed to the anonymous ${formatNumber(ANON_CHAR_LIMIT)}-character limit.`);
+      updateCharCount();
+    }
+  }
+});
+
+initAuth();
+renderAuth(currentUser());
 
 window.addEventListener("scroll", updateNav, { passive: true });
 
