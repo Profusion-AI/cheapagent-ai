@@ -1,5 +1,8 @@
 # CheapAgent v0.1 Implementation Handoff
 
+> Historical. Superseded by `docs/v0.2-checkpoint-handoff.md` (2026-06-10),
+> which records the v0.2 checkpoint and the plan through v0.3.
+
 ## What This Repo Owns
 
 `Profusion-AI/cheapagent-ai` is the hosted CheapAgent web app. It owns the Vite app, product UI, brand assets, Netlify configuration, and deployment surface for `https://cheapagent.ai/`.
