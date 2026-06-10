@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CheapAgent measures agent-context bloat and converts structured documents to TOON in the browser using doc2toon.">
-  <meta property="og:title" content="CheapAgent">
-  <meta property="og:description" content="Browser-side context measurement for agent documents. Savings are measured per input.">
+  <meta name="description" content="Paste an agent doc. CheapAgent flags context bloat, estimates token impact, and converts to TOON only when it helps.">
+  <meta property="og:title" content="CheapAgent - Cut context bloat">
+  <meta property="og:description" content="Optimize token budgets and improve agentic outputs with measured agent-context cleanup.">
   <meta property="og:image" content="https://cheapagent.ai/assets/cheapagent-logo-knockout.png">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://cheapagent.ai/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://cheapagent.ai/assets/cheapagent-logo-knockout.png">
-  <title>CheapAgent - Measure Agent Context Before It Hits the Model</title>
+  <title>CheapAgent - Cut context bloat</title>
   <link rel="icon" href="/assets/cheapagent-logo-knockout.png" type="image/png">
   <link rel="canonical" href="https://cheapagent.ai/">
   <link rel="llms" href="/llms.txt" type="text/plain">
@@ -32,7 +32,7 @@
       <div class="nav-links" aria-label="Primary navigation">
         <a href="#demo">Workbench</a>
         <a href="#pipeline">How it works</a>
-        <a href="#compare">Before / after</a>
+        <a href="#compare">Examples</a>
         <a href="#honesty">Honesty</a>
       </div>
       <div class="nav-right">
@@ -65,27 +65,27 @@
   <header class="hero wrap">
     <div class="hero-grid">
       <div class="hero-copy">
-        <span class="eyebrow reveal">Context efficiency for agents</span>
-        <h1 class="reveal" data-d="1">Measure agent-context <span class="grad">bloat</span> before it hits the model.</h1>
-        <p class="hero-sub reveal" data-d="2">CheapAgent flags duplicate and vague instructions, measures real before/after size, and converts agent docs to TOON when structured output is a fit. It runs in your browser and does not claim savings it has not measured.</p>
+        <h1 class="hero-title reveal" data-d="1" aria-label="Cut context bloat. Optimize token budgets. Improve agentic outputs.">
+          <span><span class="hero-highlight">Cut</span> context bloat.</span>
+          <span><span class="hero-highlight">Optimize</span> token budgets.</span>
+          <span><span class="hero-highlight">Improve</span> agentic outputs.</span>
+        </h1>
+        <p class="hero-sub reveal" data-d="2">Paste an agent doc. CheapAgent profiles its structure, flags wasted instructions, and converts to TOON only when it actually shrinks the payload.</p>
         <div class="tagchips reveal" data-d="2">
-          <span class="tagchip"><i></i>MEASURE</span>
-          <span class="tagchip"><i></i>COMPRESS</span>
-          <span class="tagchip"><i></i>DEFEND</span>
-          <span class="tagchip"><i></i>OPTIMIZE</span>
+          <span class="tagchip"><i></i>CLAUDE.md</span>
+          <span class="tagchip"><i></i>AGENTS.md</span>
+          <span class="tagchip"><i></i>SKILL.md</span>
+          <span class="tagchip"><i></i>TOON</span>
+          <span class="tagchip"><i></i>Measured delta</span>
         </div>
         <div class="hero-cta reveal" data-d="3">
           <a class="btn btn-accent" href="#demo">
-            Measure a document
+            Cut context now
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 8 6 4-6 4V8Z"></path><path d="M14 8h4v8h-4"></path></svg>
           </a>
-          <a class="btn btn-line" href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">View the engine</a>
+          <a class="btn btn-line" href="#engine">View engine</a>
         </div>
-        <div class="hero-meta reveal" data-d="4">
-          <div class="m"><b class="win" id="hero-delta">measured</b><span>token delta</span></div>
-          <div class="m"><b id="hero-saved">0</b><span>tokens saved, this input</span></div>
-          <div class="m"><b>0</b><span>document bytes uploaded</span></div>
-        </div>
+        <p class="hero-trust reveal" data-d="4">Browser-side by default. No hosted LLM. No document storage. Savings are measured per input.</p>
       </div>
 
       <div class="hero-visual reveal" data-d="2" aria-hidden="true">
@@ -93,12 +93,12 @@
           <div class="hero-spray"></div>
           <img class="hero-logo" src="/assets/cheapagent-logo-knockout.png" alt="">
           <div class="float-chip fc-1">
-            <span class="fc-lab">token delta</span>
-            <span class="fc-val" id="visual-delta">run</span>
+            <span class="fc-lab">input</span>
+            <span class="fc-val">CLAUDE.md</span>
           </div>
           <div class="float-chip fc-2">
-            <span class="fc-lab">upload</span>
-            <span class="fc-val">none</span>
+            <span class="fc-lab">output</span>
+            <span class="fc-val">Measured delta</span>
           </div>
         </div>
       </div>
@@ -109,11 +109,11 @@
     <div class="wrap">
       <span class="lab">Built for the files agents actually read</span>
       <div class="proof-files">
-        <span class="pf">CLAUDE.md</span>
-        <span class="pf">AGENTS.md</span>
-        <span class="pf">SKILL.md</span>
-        <span class="pf">.md / .txt</span>
-        <span class="pf">TOON</span>
+        <span class="pf"><svg class="pf-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"></path><path d="M14 3v5h5"></path><path d="M9 13h6M9 17h4"></path></svg>CLAUDE.md</span>
+        <span class="pf"><svg class="pf-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"></path><path d="M14 3v5h5"></path><path d="M9 13h6M9 17h4"></path></svg>AGENTS.md</span>
+        <span class="pf"><svg class="pf-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"></path><path d="M14 3v5h5"></path><path d="M9 13h6M9 17h4"></path></svg>SKILL.md</span>
+        <span class="pf pf-toon"><svg class="pf-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"></path><path d="m8 9 3 3-3 3M13 15h4"></path></svg>TOON</span>
+        <span class="pf"><svg class="pf-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="m14 7 5 5-5 5"></path></svg>Measured delta</span>
       </div>
     </div>
   </div>
@@ -122,8 +122,8 @@
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">The workbench</span>
-        <h2>Paste an agent doc. Get an evidence receipt.</h2>
-        <p>Pick a target, run the measurement, and read the receipt: source vs output size, optimizer warnings, and TOON output you can copy or download.</p>
+        <h2>To TOONify or not?</h2>
+        <p>Paste CLAUDE.md, AGENTS.md, SKILL.md, or any agent-context doc. CheapAgent gives a yes/no verdict, bloat warnings, and a before/after token estimate.</p>
       </div>
 
       <form class="demo-card reveal" id="alpha-form" data-d="1">
@@ -137,28 +137,28 @@
         <div class="demo-body">
           <div class="demo-pane left">
             <div class="pane-head">
-              <span class="ph-title">
-                <span id="src-name">CLAUDE.md</span>
+              <span class="ph-title ph-title-source">
+                <span id="src-name">Source doc</span>
               </span>
               <span class="ph-meta" id="char-count">0 / 1000 chars</span>
               <span class="ph-meta" id="quota-meta" hidden></span>
             </div>
-            <textarea class="src-input" id="source-input" maxlength="1000" spellcheck="true" aria-label="Source text"></textarea>
+            <textarea class="src-input" id="source-input" spellcheck="true" aria-label="Source text" placeholder="Paste agent context here. Rules, tool notes, safety instructions, setup steps, repeated sections - all fair game."></textarea>
           </div>
 
           <div class="demo-pane right">
             <div class="pane-head">
-              <span class="ph-title">Evidence receipt</span>
-              <span class="ph-meta" id="status-badge" data-state="info">ready</span>
+              <span class="ph-title ph-title-verdict">Verdict</span>
+              <span class="ph-meta status-badge" id="status-badge" data-state="info">ready</span>
             </div>
 
             <div class="result-pane">
               <div class="result-empty" id="result-empty">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"></path><path d="M7 14l3-3 3 2 4-5"></path></svg>
-                <p id="result-summary">Run the measurement to see source size, output size, warnings, and TOON.</p>
+                <p id="result-summary">Run a check to see whether TOON helps this input.</p>
                 <button class="btn btn-accent btn-sm" id="measureBtn" type="submit">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 8 6 4-6 4V8Z"></path><path d="M14 8h4v8h-4"></path></svg>
-                  Measure context
+                  Run check
                 </button>
               </div>
 
@@ -168,10 +168,16 @@
               </div>
 
               <div class="result-live" id="result-live">
+                <div class="verdict-card" id="verdict-card">
+                  <span class="verdict-kicker">Verdict</span>
+                  <h3 id="verdict-title">Run a check.</h3>
+                  <p id="verdict-body">CheapAgent will say whether TOON helps this input.</p>
+                </div>
+
                 <div class="metrics">
                   <div class="metric k-src"><span class="mk">Source</span><span class="mv" id="source-chars">0</span><span class="ms" id="source-tokens">~0 tokens</span></div>
-                  <div class="metric k-out"><span class="mk">TOON</span><span class="mv" id="toon-chars">0</span><span class="ms" id="toon-tokens">~0 tokens</span></div>
-                  <div class="metric k-win"><span class="mk">Token delta</span><span class="mv" id="token-delta">0</span><span class="ms" id="token-percent">0%</span></div>
+                  <div class="metric k-out"><span class="mk">Output</span><span class="mv" id="toon-chars">0</span><span class="ms" id="toon-tokens">~0 tokens</span></div>
+                  <div class="metric k-win"><span class="mk">Delta</span><span class="mv" id="token-delta">0</span><span class="ms" id="token-percent">0%</span></div>
                 </div>
 
                 <div class="ba-block">
@@ -189,8 +195,8 @@
 
                 <div class="warns">
                   <div class="warns-head">
-                    <h4>Optimizer warnings</h4>
-                    <span>advisory signals, not silent rewrites</span>
+                    <h4>Bloat warnings</h4>
+                    <span>review before copying</span>
                   </div>
                   <div id="warnings-list"></div>
                 </div>
@@ -201,7 +207,7 @@
                       <span class="term-title"><span class="accent-dot">.</span> <span id="toon-name">claude.optimized.toon</span></span>
                       <button class="term-copy" id="copy-button" type="button" disabled>
                         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="10" height="10" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                        Copy
+                        Copy output
                       </button>
                     </div>
                     <pre class="term-body" id="output"></pre>
@@ -213,30 +219,29 @@
         </div>
 
         <div class="demo-foot">
-          <span class="privacy" id="input-notice">Processed in your browser through the doc2toon browser package. No document bodies leave the page.</span>
+          <span class="privacy" id="input-notice">Measured locally. Document text is not stored by default.</span>
           <label class="btn btn-line btn-sm file-action" for="file-input">Upload .md or .txt</label>
           <input id="file-input" type="file" accept=".md,.txt,text/markdown,text/plain">
           <button class="btn btn-line btn-sm" id="sample-button" type="button">Load sample</button>
           <button class="btn btn-line btn-sm" id="reset-button" type="button">Reset</button>
-          <button class="btn btn-accent btn-sm" id="measureBtn2" type="submit">Measure context</button>
-          <button class="btn btn-line btn-sm" id="download-button" type="button" disabled>Download TOON</button>
+          <button class="btn btn-accent btn-sm" id="measureBtn2" type="submit">Run check</button>
+          <button class="btn btn-line btn-sm" id="download-button" type="button" disabled>Download .toon</button>
         </div>
       </form>
     </div>
   </section>
 
-  <section class="section-pad" id="pillars">
+  <section class="section-pad" id="engine">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow">Brand essence</span>
-        <h2>Pragmatic tools for serious context work.</h2>
-        <p>Four commitments, drawn from how the engine behaves.</p>
+        <span class="eyebrow">The engine</span>
+        <h2>Built to cut, not decorate.</h2>
+        <p>CheapAgent does not rewrite docs for style. It finds context your agent has to carry and shows whether a tighter structure helps.</p>
       </div>
       <div class="pillars">
-        <article class="pillar p-green reveal" data-d="1"><span class="pi">1</span><h3>Functional</h3><p>Reads the agent docs teams already keep and returns a receipt they can act on.</p></article>
-        <article class="pillar p-blue reveal" data-d="2"><span class="pi">2</span><h3>Defensible</h3><p>Every change is measured and shown. Warnings are advisory signals you review.</p></article>
-        <article class="pillar p-teal reveal" data-d="3"><span class="pi">3</span><h3>Optimized</h3><p>Better context, lower cost, proven per input. No universal savings claims.</p></article>
-        <article class="pillar p-crown reveal" data-d="4"><span class="pi">4</span><h3>Built for agents</h3><p>Designed around CLAUDE.md, AGENTS.md, SKILL.md, requirements, definitions, and TOON.</p></article>
+        <article class="pillar p-green reveal" data-d="1"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 7v10M17 7v10M5 17h14"></path></svg></span><h3>Find bloat</h3><p>Surface duplicate rules, vague instructions, long sections, and split-worthy blocks.</p></article>
+        <article class="pillar p-blue reveal" data-d="2"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 2.8 8.2 7 10 4.2-1.8 7-5.6 7-10V6z"></path><path d="m9 12 2 2 4-5"></path></svg></span><h3>Check fit</h3><p>TOON works best on repeated records and structured rules. CheapAgent says when it does not.</p></article>
+        <article class="pillar p-teal reveal" data-d="3"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V5M5 19h14"></path><path d="M8 15h2v4H8zM12 11h2v8h-2zM16 7h2v12h-2z"></path></svg></span><h3>Show the delta</h3><p>Compare source, output, and estimated tokens before you copy anything.</p></article>
       </div>
     </div>
   </section>
@@ -244,18 +249,17 @@
   <section class="section-pad" id="pipeline">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow">How it works</span>
-        <h2>Profile first. Encode second. Measure always.</h2>
-        <p>doc2toon does not claim savings before it proves them. CheapAgent exposes the measured result in the browser.</p>
+        <span class="eyebrow">Flow</span>
+        <h2>Read. Profile. Decide.</h2>
+        <p>Paste a doc, let CheapAgent inspect the structure, then keep Markdown, split first, or copy TOON when the measured result wins.</p>
       </div>
 
       <div class="pipe-layout">
         <div class="pipe reveal">
-          <div class="pipe-step pipe-row"><div class="pipe-rail"><span class="pipe-node">1</span><span class="pipe-line"></span></div><div class="pipe-content"><h3>Read<span class="step-tag">.md, .txt, paste</span></h3><p>Markdown, plain text, or a pasted agent file. Bodies stay in the browser by default.</p></div></div>
-          <div class="pipe-step pipe-row"><div class="pipe-rail"><span class="pipe-node">2</span><span class="pipe-line"></span></div><div class="pipe-content"><h3>Profile the document<span class="step-tag">detect structure</span></h3><p>The profiler detects definitions, requirements, rules, and tables.</p></div></div>
-          <div class="pipe-step pipe-row"><div class="pipe-rail"><span class="pipe-node">3</span><span class="pipe-line"></span></div><div class="pipe-content"><h3>Encode to TOON<span class="step-tag">browser-safe package</span></h3><p>Repeated-record shapes get denser while the receipt stays reviewable.</p></div></div>
-          <div class="pipe-step pipe-row"><div class="pipe-rail"><span class="pipe-node">4</span><span class="pipe-line"></span></div><div class="pipe-content"><h3>Surface warnings<span class="step-tag">review before trust</span></h3><p>Duplicate, vague, long, and split-candidate warnings are shown without rewriting silently.</p></div></div>
-          <div class="pipe-step pipe-row"><div class="pipe-rail"><span class="pipe-node">5</span></div><div class="pipe-content"><h3>Report measured metrics<span class="step-tag">no guessing</span></h3><p>Source chars, TOON chars, token estimates, and the real delta for this input.</p></div></div>
+          <div class="pipe-step pipe-row"><div class="pipe-rail"><span class="pipe-node">1</span><span class="pipe-line"></span></div><div class="pipe-content"><h3>Paste or upload<span class="step-tag">.md, .txt, text</span></h3><p>Start with an agent doc, prompt file, rules file, or plain text context.</p></div></div>
+          <div class="pipe-step pipe-row"><div class="pipe-rail"><span class="pipe-node">2</span><span class="pipe-line"></span></div><div class="pipe-content"><h3>Profile the structure<span class="step-tag">detect fit</span></h3><p>CheapAgent detects prose, rules, tables, definitions, and mixed sections.</p></div></div>
+          <div class="pipe-step pipe-row"><div class="pipe-rail"><span class="pipe-node">3</span><span class="pipe-line"></span></div><div class="pipe-content"><h3>Flag the waste<span class="step-tag">bloat warnings</span></h3><p>Duplicates, vague rules, long blocks, and split candidates get called out.</p></div></div>
+          <div class="pipe-step pipe-row"><div class="pipe-rail"><span class="pipe-node">4</span></div><div class="pipe-content"><h3>Choose the output<span class="step-tag">verdict</span></h3><p>Keep Markdown, split first, or copy TOON when the measured result wins.</p></div></div>
         </div>
 
         <aside class="pipe-aside reveal" data-d="1">
@@ -271,7 +275,7 @@
 <span class="ln">  toon        measured per input</span>
 <span class="ln">  delta       shown, not asserted</span></pre>
           </div>
-          <p class="pipe-aside-note">Same rule as the CLI: nothing is claimed until it is measured.</p>
+          <p class="pipe-aside-note">CheapAgent does not promise that TOON always saves tokens. CheapAgent tells you when it does.</p>
         </aside>
       </div>
     </div>
@@ -281,13 +285,25 @@
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Before / after</span>
-        <h2>Same meaning when the structure fits. Fewer tokens when measured.</h2>
-        <p>A glossary, requirement list, or ruleset can become repeated TOON records. Plain prose may not shrink, and CheapAgent will show that too.</p>
+        <h2>Less context. Same job.</h2>
+        <p>When the structure fits, CheapAgent turns repeated agent instructions into compact TOON and shows the measured difference.</p>
       </div>
-      <div class="compare reveal" data-d="2">
-        <div class="cc"><span class="cl">Source</span><span class="cv" id="compare-source">0 chars</span><span class="cl" id="compare-source-tokens">~0 tokens</span></div>
-        <div class="arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></div>
-        <div class="cc win"><span class="cl">TOON</span><span class="cv" id="compare-toon">0 chars</span><span class="cl" id="compare-toon-tokens">~0 tokens</span></div>
+      <div class="compare-examples reveal" data-d="2">
+        <article class="term example-term">
+          <div class="term-bar"><span class="term-title">Before: Markdown sprawl</span></div>
+          <pre class="term-body">## Rules
+- Always verify the source before changing copy.
+- Always check the current source before editing copy.
+- Be careful and keep quality high.</pre>
+        </article>
+        <article class="term example-term">
+          <div class="term-bar"><span class="term-title">After: compact TOON</span></div>
+          <pre class="term-body">rules:
+  - action: verify source
+    before: copy changes
+  - action: remove duplicate
+    note: keep one clear rule</pre>
+        </article>
       </div>
     </div>
   </section>
@@ -295,14 +311,14 @@
   <section class="honesty section-pad" id="honesty">
     <div class="wrap honesty-grid">
       <div class="reveal">
-        <span class="eyebrow">The claims boundary</span>
-        <h2>Measure before you claim savings.</h2>
-        <p>CheapAgent is an early alpha for browser-side agent-context measurement. Savings are measured per input and are not guaranteed.</p>
+        <span class="eyebrow">Honesty</span>
+        <h2>No fake savings.</h2>
+        <p>Some docs should stay Markdown. Some need splitting before conversion. CheapAgent should say that before you send anything to a model.</p>
       </div>
       <div class="honesty-list">
-        <article class="h-item ok reveal" data-d="1"><span class="hi">ok</span><div><h4>What it does</h4><p>Measures structure, warnings, source size, output size, and a token estimate locally in the browser.</p></div></article>
-        <article class="h-item ok reveal" data-d="2"><span class="hi">ok</span><div><h4>Privacy default</h4><p>The page does not call a hosted LLM API or store document bodies server-side.</p></div></article>
-        <article class="h-item no reveal" data-d="3"><span class="hi">no</span><div><h4>What it will not claim</h4><p>No universal percentage savings, no compliance assurance, no production-scale reliability claim, and no silent lossy rewrite.</p></div></article>
+        <article class="h-item ok reveal" data-d="1"><span class="hi">ok</span><div><h4>What it does</h4><p>Profiles structure, flags bloat, converts to TOON, and reports measured before/after.</p></div></article>
+        <article class="h-item no reveal" data-d="2"><span class="hi">no</span><div><h4>What it does not do</h4><p>No universal savings claims. No model-quality guarantee. No production compliance promise.</p></div></article>
+        <article class="h-item ok reveal" data-d="3"><span class="hi">ok</span><div><h4>Privacy default</h4><p>Conversion runs in your browser. The beta does not store document bodies by default.</p></div></article>
       </div>
     </div>
   </section>
@@ -311,17 +327,17 @@
     <div class="cta-spray" aria-hidden="true"></div>
     <div class="wrap cta-inner">
       <img class="cta-logo reveal" src="/assets/cheapagent-logo-knockout.png" alt="">
-      <h2 class="reveal" data-d="1">Stop paying for context you did not need.</h2>
-      <p class="reveal" data-d="2">Run a document through the workbench, read the receipt, and copy TOON from a browser-side conversion.</p>
+      <h2 class="reveal" data-d="1">Cut the context. Keep the signal.</h2>
+      <p class="reveal" data-d="2">Run one agent doc through CheapAgent before it hits the model.</p>
       <div class="cta-install reveal" data-d="2">
-        <span><span class="t-prompt">$</span> npx doc2toon convert CLAUDE.md --stats</span>
+        <span><span class="t-prompt">$</span> doc2toon convert CLAUDE.md --stats</span>
         <button id="cta-copy" type="button" aria-label="Copy example command" title="Copy example command">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="10" height="10" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         </button>
       </div>
       <div class="cta-btns reveal" data-d="3">
-        <a class="btn btn-accent" href="#demo">Open the workbench</a>
-        <a class="btn btn-line" href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">Read the engine docs</a>
+        <a class="btn btn-accent" href="#demo">Open workbench</a>
+        <a class="btn btn-line" href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">Read engine docs</a>
       </div>
     </div>
   </section>
@@ -331,16 +347,16 @@
       <div class="foot-grid">
         <div class="foot-brand">
           <a class="brand" href="#top"><img class="brand-logo" src="/assets/cheapagent-logo-knockout.png" alt=""><span class="wm">cheap<b>agent</b></span></a>
-          <p>Browser-side agent-context measurement. Savings are measured per input and are not guaranteed. v0.2 beta.</p>
+          <p>Browser-side agent-context cleanup. Savings are measured per input and are not guaranteed. v0.2 beta.</p>
         </div>
         <div class="foot-cols">
-          <div class="foot-col"><h5>Product</h5><a href="#demo">Workbench</a><a href="#pipeline">How it works</a><a href="#honesty">Claims boundary</a><a href="/privacy.html">Privacy</a><a href="#" data-consent-prefs>Cookie preferences</a></div>
+          <div class="foot-col"><h5>Product</h5><a href="#demo">Workbench</a><a href="#pipeline">How it works</a><a href="#compare">Examples</a><a href="#honesty">Honesty</a><a href="/privacy.html">Privacy</a><a href="#" data-consent-prefs>Cookie preferences</a></div>
           <div class="foot-col"><h5>Engine</h5><a href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">doc2toon</a><a href="https://github.com/Profusion-AI/cheapagent-ai" target="_blank" rel="noopener">cheapagent-ai</a></div>
-          <div class="foot-col"><h5>Modes</h5><a href="#demo">CLAUDE.md</a><a href="#demo">AGENTS.md</a><a href="#demo">SKILL.md</a><a href="#demo">Document to TOON</a></div>
+          <div class="foot-col"><h5>Inputs</h5><a href="#demo">CLAUDE.md</a><a href="#demo">AGENTS.md</a><a href="#demo">SKILL.md</a><a href="#demo">TOON</a></div>
         </div>
       </div>
       <div class="foot-bottom">
-        <span>MEASURE. COMPRESS. DEFEND. OPTIMIZE.</span>
+        <span>Different output. Same task. Less waste.</span>
         <span>Independent project built on TOON. Not affiliated with the TOON project.</span>
       </div>
     </div>

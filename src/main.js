@@ -32,6 +32,8 @@ const measuring = document.querySelector("#measuring");
 const measuringText = document.querySelector("#measuring-text");
 const resultLive = document.querySelector("#result-live");
 
+const verdictTitle = document.querySelector("#verdict-title");
+const verdictBody = document.querySelector("#verdict-body");
 const sourceChars = document.querySelector("#source-chars");
 const sourceTokens = document.querySelector("#source-tokens");
 const toonChars = document.querySelector("#toon-chars");
@@ -48,18 +50,11 @@ const beforeBar = document.querySelector("#ba-before");
 const afterBar = document.querySelector("#ba-after");
 const beforeNumber = document.querySelector("#ba-before-n");
 const afterNumber = document.querySelector("#ba-after-n");
-const heroDelta = document.querySelector("#hero-delta");
-const heroSaved = document.querySelector("#hero-saved");
-const visualDelta = document.querySelector("#visual-delta");
-const compareSource = document.querySelector("#compare-source");
-const compareSourceTokens = document.querySelector("#compare-source-tokens");
-const compareToon = document.querySelector("#compare-toon");
-const compareToonTokens = document.querySelector("#compare-toon-tokens");
 
 let activeMode = "claude";
 let latestToon = "";
 let latestFilename = "cheapagent-output.toon";
-let usingSample = true;
+let usingSample = false;
 let dailyQuota = null;
 
 const samples = {
@@ -109,10 +104,10 @@ Use this skill when agent context needs conversion, release prep, docs review, U
 `,
   toon: `# Definitions
 
-## Evidence Receipt
+## Context Budget
 
-Definition: A reviewer-readable record of workflow inputs, artifacts, gates, approvals, and limitations.
-Tags: evidence, workflow
+Definition: The amount of context an agent has to carry before it can do the task.
+Tags: context, tokens
 
 ## Review Gate
 
@@ -154,10 +149,45 @@ const modeConfig = {
 };
 
 const warningLabels = {
-  duplicate_rule: "Duplicate rule",
+  duplicate_rule: "Duplicate instruction",
   vague_rule: "Vague instruction",
   long_section: "Long section",
   split_candidate: "Split candidate",
+};
+
+const warningExplanations = {
+  duplicate_rule: "This rule appears more than once. Merge it before sending context to an agent.",
+  vague_rule: "This rule is too broad to be reliably followed. Make it specific or remove it.",
+  long_section: "This block is carrying too much. Split it into smaller, named sections.",
+  split_candidate: "This section may convert better as its own context block.",
+  conversion_note: "The output changed structure. Review before copying.",
+};
+
+const verdicts = {
+  toonWins: {
+    title: "TOON helps here.",
+    body: "This input has enough structure to shrink cleanly. Copy the TOON output or download it.",
+    badge: "TOON helps",
+    state: "optimized",
+  },
+  keepMarkdown: {
+    title: "Keep Markdown.",
+    body: "TOON does not improve this input. Keep the original or split the doc first.",
+    badge: "keep md",
+    state: "info",
+  },
+  splitFirst: {
+    title: "Split first.",
+    body: "Long or mixed sections are hiding the savings. Break the doc into cleaner parts before converting.",
+    badge: "split first",
+    state: "info",
+  },
+  reviewNeeded: {
+    title: "Review before copying.",
+    body: "CheapAgent found issues that may affect agent behavior. Check the warnings before using the output.",
+    badge: "review",
+    state: "info",
+  },
 };
 
 function selectedConfig() {
@@ -222,6 +252,36 @@ function setTheme(theme) {
 
 function updateNav() {
   nav.classList.toggle("scrolled", window.scrollY > 12);
+}
+
+function initReveal() {
+  if (!("IntersectionObserver" in window)) {
+    return;
+  }
+  const targets = [...document.querySelectorAll(".reveal, .pipe-step")];
+  if (targets.length === 0) {
+    return;
+  }
+  document.querySelectorAll(".pipe-step").forEach((step, index) => {
+    if (!step.dataset.d) {
+      step.dataset.d = String(Math.min(index + 1, 4));
+    }
+  });
+  root.classList.add("reveal-ready");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      }
+    },
+    { rootMargin: "0px 0px -12% 0px", threshold: 0.1 },
+  );
+  for (const target of targets) {
+    observer.observe(target);
+  }
 }
 
 function updateModeButtons() {
@@ -312,10 +372,12 @@ async function debitQuota(chars) {
   }
 }
 
-function resetOutput(message = "Run the measurement to see source size, output size, warnings, and TOON.") {
+function resetOutput(message = "Run a check to see whether TOON helps this input.") {
   resultSummary.textContent = message;
   setStatus("ready", "info");
   setPanelState("empty");
+  verdictTitle.textContent = "Run a check.";
+  verdictBody.textContent = "CheapAgent will say whether TOON helps this input.";
   sourceChars.textContent = "0";
   sourceTokens.textContent = "~0 tokens";
   toonChars.textContent = "0";
@@ -333,16 +395,20 @@ function resetOutput(message = "Run the measurement to see source size, output s
   afterBar.style.width = "0%";
   beforeNumber.textContent = "0 tok";
   afterNumber.textContent = "0 tok";
-  heroDelta.textContent = "measured";
-  heroSaved.textContent = "0";
-  visualDelta.textContent = "run";
-  compareSource.textContent = "0 chars";
-  compareSourceTokens.textContent = "~0 tokens";
-  compareToon.textContent = "0 chars";
-  compareToonTokens.textContent = "~0 tokens";
 }
 
-function loadSample({ run = true } = {}) {
+function clearInput() {
+  sourceInput.value = "";
+  usingSample = false;
+  srcName.textContent = "Source doc";
+  latestFilename = selectedConfig().filename;
+  toonName.textContent = selectedConfig().filename;
+  updateCharCount();
+  setNotice("Measured locally. Document text is not stored by default.");
+  resetOutput();
+}
+
+function loadSample({ run = false } = {}) {
   const config = selectedConfig();
   const { text, truncated } = enforceLimit(samples[activeMode]);
   sourceInput.value = text;
@@ -351,7 +417,11 @@ function loadSample({ run = true } = {}) {
   updateCharCount();
   latestFilename = config.filename;
   toonName.textContent = config.filename;
-  setNotice(truncated ? "Sample exceeded the character limit and was truncated." : "Loaded a local sample. No network request was made.");
+  setNotice(
+    truncated
+      ? `Sample was truncated to the ${formatNumber(charLimit())}-character limit.`
+      : "Loaded sample locally. Run check to see the verdict.",
+  );
   if (run) {
     runConversion();
   } else {
@@ -371,7 +441,7 @@ function renderWarnings(result) {
       <article class="warning-card" data-severity="${severity}">
         <span class="wn">${escapeHtml(warning.kind?.slice(0, 1).toUpperCase() ?? "I")}</span>
         <span class="wt">${escapeHtml(warningLabels[warning.kind] ?? warning.kind)}
-          <small>${escapeHtml(warning.message)} ${escapeHtml(warning.suggestion ?? "")}</small>
+          <small>${escapeHtml(warningExplanations[warning.kind] ?? `${warning.message} ${warning.suggestion ?? ""}`)}</small>
           ${warning.evidence ? `<small class="evidence">${escapeHtml(warning.evidence)}</small>` : ""}
         </span>
         <span class="wa">${escapeHtml(location)}</span>
@@ -383,14 +453,14 @@ function renderWarnings(result) {
     cards.push(`
       <article class="warning-card" data-severity="info">
         <span class="wn">i</span>
-        <span class="wt">Conversion note<small>${escapeHtml(warning)}</small></span>
+        <span class="wt">Conversion note<small>${escapeHtml(warningExplanations.conversion_note)}</small>${warning ? `<small class="evidence">${escapeHtml(warning)}</small>` : ""}</span>
         <span class="wa">info</span>
       </article>
     `);
   }
 
   if (cards.length === 0) {
-    warningsList.innerHTML = '<p class="empty-state">No optimizer warnings fired for this input. Clean does not mean compressed.</p>';
+    warningsList.innerHTML = '<p class="empty-state">No bloat warnings fired for this input. Clean does not mean TOON wins.</p>';
     return;
   }
 
@@ -406,6 +476,16 @@ function renderResult(result, config) {
   const optimized = tokenSavings > 0;
   const afterWidth = Math.min(100, Math.max(8, (toonTokenCount / sourceTokenCount) * 100));
 
+  const warningKinds = new Set((result.optimizerWarnings ?? []).map((warning) => warning.kind));
+  let verdict = verdicts.toonWins;
+  if (warningKinds.has("long_section") || warningKinds.has("split_candidate")) {
+    verdict = verdicts.splitFirst;
+  } else if (!optimized || larger) {
+    verdict = verdicts.keepMarkdown;
+  } else if ((result.optimizerWarnings ?? []).length > 0 || (result.warnings ?? []).length > 0) {
+    verdict = verdicts.reviewNeeded;
+  }
+
   sourceChars.textContent = formatNumber(result.stats.sourceChars);
   sourceTokens.textContent = `~${formatNumber(result.stats.sourceTokens)} tokens`;
   toonChars.textContent = formatNumber(result.stats.toonChars);
@@ -418,17 +498,10 @@ function renderResult(result, config) {
   beforeNumber.textContent = `${formatNumber(result.stats.sourceTokens)} tok`;
   afterNumber.textContent = `${formatNumber(result.stats.toonTokens)} tok`;
 
-  heroDelta.textContent = larger ? `${formatPercent(Math.abs(tokenSavingsPercent))} larger` : `${formatPercent(tokenSavingsPercent)} saved`;
-  heroSaved.textContent = optimized ? formatNumber(tokenSavings) : "0";
-  visualDelta.textContent = larger ? "larger" : optimized ? "saved" : "flat";
-
-  compareSource.textContent = `${formatNumber(result.stats.sourceChars)} chars`;
-  compareSourceTokens.textContent = `~${formatNumber(result.stats.sourceTokens)} tokens`;
-  compareToon.textContent = `${formatNumber(result.stats.toonChars)} chars`;
-  compareToonTokens.textContent = `~${formatNumber(result.stats.toonTokens)} tokens`;
-
-  resultSummary.textContent = `${config.label}: ${result.profile.name} profile, ${result.lossless ? "lossless" : "lossy"} output, delimiter "${result.delimiter}". Savings are measured for this input only.`;
-  setStatus(optimized ? "optimized" : "measured", optimized ? "optimized" : "info");
+  verdictTitle.textContent = verdict.title;
+  verdictBody.textContent = verdict.body;
+  resultSummary.textContent = `${verdict.title} ${verdict.body}`;
+  setStatus(verdict.badge, verdict.state);
   renderWarnings(result);
 
   latestToon = result.toon;
@@ -437,7 +510,11 @@ function renderResult(result, config) {
   output.textContent = result.toon;
   copyButton.disabled = false;
   downloadButton.disabled = false;
-  setNotice(`Measured ${formatNumber(sourceInput.value.trimEnd().length)} characters locally.`);
+  setNotice(
+    optimized
+      ? `Measured ${formatNumber(sourceInput.value.trimEnd().length)} characters locally.`
+      : "TOON did not win. This output is larger or less useful than the source. Keep Markdown or split the doc first.",
+  );
   setPanelState("live");
 }
 
@@ -446,8 +523,8 @@ async function runConversion() {
   updateCharCount();
 
   if (!text.trim()) {
-    resetOutput("Paste or upload content to measure context efficiency.");
-    setNotice("Input is empty.");
+    resetOutput("No text found. Upload a .md or .txt file, or paste text directly.");
+    setNotice("No text found. Upload a .md or .txt file, or paste text directly.");
     return;
   }
 
@@ -487,7 +564,7 @@ async function runConversion() {
       });
       renderResult(result, config);
     } catch (error) {
-      resetOutput("The local converter returned an error.");
+      resetOutput("Review before copying.");
       setStatus("error", "error");
       warningsList.innerHTML = `
         <article class="warning-card" data-severity="warning">
@@ -506,7 +583,7 @@ async function copyOutput() {
     return;
   }
   const copied = await copyText(latestToon);
-  setNotice(copied ? "Copied TOON output to clipboard." : "Clipboard access is unavailable. Select the TOON output manually.");
+  setNotice(copied ? "Copied output." : "Clipboard access is unavailable. Select the TOON output manually.");
 }
 
 function downloadOutput() {
@@ -522,7 +599,7 @@ function downloadOutput() {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
-  setNotice(`Prepared ${latestFilename}.`);
+  setNotice(`Downloaded ${latestFilename}.`);
 }
 
 async function copyText(text) {
@@ -554,12 +631,12 @@ function setMode(mode) {
   activeMode = modeConfig[mode] ? mode : "claude";
   updateModeButtons();
   if (usingSample) {
-    loadSample({ run: true });
+    loadSample({ run: false });
     return;
   }
 
   const config = selectedConfig();
-  srcName.textContent = config.sourceName;
+  srcName.textContent = sourceInput.value.trim() ? config.sourceName : "Source doc";
   latestFilename = config.filename;
   toonName.textContent = config.filename;
   if (sourceInput.value.trim()) {
@@ -604,36 +681,66 @@ fileInput.addEventListener("change", async () => {
 
   const allowed = /\.(md|txt)$/i.test(file.name) || ["text/markdown", "text/plain", ""].includes(file.type);
   if (!allowed) {
-    setNotice("Only .md and .txt files are supported in this alpha.");
+    setNotice("Only .md and .txt files are supported in this beta.");
     fileInput.value = "";
     return;
   }
 
   const rawText = await file.text();
+  if (!rawText.trim()) {
+    resetOutput("No text found. Upload a .md or .txt file, or paste text directly.");
+    setNotice("No text found. Upload a .md or .txt file, or paste text directly.");
+    fileInput.value = "";
+    return;
+  }
   const { text, truncated } = enforceLimit(rawText);
   sourceInput.value = text;
   usingSample = false;
   srcName.textContent = file.name;
   updateCharCount();
-  setNotice(truncated ? `${file.name} was truncated to the ${formatNumber(charLimit())}-character limit.` : `Loaded ${file.name} locally.`);
-  runConversion();
+  setNotice(
+    truncated
+      ? `${file.name} was truncated to the ${formatNumber(charLimit())}-character limit.`
+      : `Loaded ${file.name} locally. Run check to see the verdict.`,
+  );
+  resetOutput();
 });
 
 document.querySelectorAll(".demo-mode").forEach((button) => {
   button.addEventListener("click", () => {
     setMode(button.dataset.mode);
   });
+  button.addEventListener("keydown", (event) => {
+    const buttons = [...document.querySelectorAll(".demo-mode")];
+    const index = buttons.indexOf(button);
+    const last = buttons.length - 1;
+    let next = index;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      next = index === last ? 0 : index + 1;
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      next = index === 0 ? last : index - 1;
+    } else if (event.key === "Home") {
+      next = 0;
+    } else if (event.key === "End") {
+      next = last;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    buttons[next].focus();
+    setMode(buttons[next].dataset.mode);
+  });
 });
 
 sampleButton.addEventListener("click", () => loadSample());
-resetButton.addEventListener("click", () => loadSample({ run: false }));
+resetButton.addEventListener("click", clearInput);
 copyButton.addEventListener("click", copyOutput);
 downloadButton.addEventListener("click", downloadOutput);
 themeToggle.addEventListener("click", () => {
   setTheme(root.dataset.theme === "dark" ? "light" : "dark");
 });
 ctaCopy.addEventListener("click", async () => {
-  const copied = await copyText("npx doc2toon convert CLAUDE.md --stats");
+  const copied = await copyText("doc2toon convert CLAUDE.md --stats");
   setNotice(copied ? "Copied example command." : "Clipboard access is unavailable.");
 });
 
@@ -685,4 +792,5 @@ try {
 
 updateNav();
 updateModeButtons();
-loadSample({ run: true });
+initReveal();
+clearInput();
