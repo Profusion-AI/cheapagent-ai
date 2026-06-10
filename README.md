@@ -24,25 +24,19 @@ Site setup: enable Identity on the Netlify site (registration: open or invite-on
 
 ## Dependency Boundary
 
-CheapAgent depends on the public package boundary:
+CheapAgent consumes the engine through the public npm package boundary:
 
 ```js
 import { convertTextToToon } from "doc2toon/browser";
 ```
 
-`doc2toon` is not published to npm yet, so this repo temporarily depends on an immutable packaging commit:
+The app depends on the published registry package:
 
 ```json
-"doc2toon": "git+https://github.com/Profusion-AI/doc2toon.git#1492f12343623ada7159c6d90ddae5646e019382"
+"doc2toon": "^0.2.0"
 ```
 
-When `doc2toon` is published (the v0.2.0 tag workflow publishes it), replace that dependency with the npm version:
-
-```bash
-npm install doc2toon@^0.2.0
-```
-
-The pinned commit and doc2toon 0.2.0 have identical library code, so the swap is a dependency-source change only.
+[`doc2toon`](https://www.npmjs.com/package/doc2toon) is published to npm with provenance from the engine repo's tag-triggered workflow. CheapAgent must not reach into private source paths, sibling repos, or built distribution files outside the package boundary.
 
 ## Local Development
 
