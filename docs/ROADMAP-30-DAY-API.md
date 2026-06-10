@@ -1,5 +1,7 @@
 # CheapAgent Context API: 30-Day Roadmap
 
+> **SUPERSEDED (2026-06-10) by the 30-day plan v2.** The positioning and verdict-schema thinking below carry forward, but three things changed: (1) **targets were corrected down** to serious-signal levels (30–80 signups/leads, 2–5 paid, ≥1 external CI adopter — not hundreds of keys); (2) the plan is now **two-track** — local-first agent surfaces (CLI `--json`, GitHub Action, MCP server, `doc2toon serve`) ship committed in 30 days, while the hosted API is built as a *contract* (OpenAPI spec + `api.cheapagent.ai` 501 stub + key-issuance design); (3) the **hosted API is demand-gated** — a day-30 gate (intent signals, hosted-needing payers, hosted-blocked pilots) decides whether the hosted beta activates in days 31–45. No billing infrastructure before the gate passes. The verdict contract lives in the doc2toon repo: `schemas/verdict.v1.json`, `openapi/cheapagent.v1.yaml`, `docs/verdict-schema-v1.md`.
+
 This roadmap covers the next ~30 days. Phases are sequential. Each phase has an exit condition; do not start the next phase until the current one's exit condition is met. Dates are intentionally omitted — sequence is the commitment, not the calendar.
 
 This plan supersedes the previous v0.3.0 scope. DOCX and PDF support are deferred (see Non-Goals). The paid hosted tier moves from "planned" to "the commercial center," delivered as API access rather than web-app convenience features.
