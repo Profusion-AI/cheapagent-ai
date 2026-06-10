@@ -8,6 +8,15 @@ const DAILY_CHAR_LIMIT = 15000;
 // request re-reads after losing a write race to a concurrent conversion.
 const MAX_WRITE_ATTEMPTS = 4;
 
+// Site-wide aggregate daily metrics (v0.2.1): one blob of PII-free integer
+// totals per UTC day, disclosed on the privacy page. Only signed-in request
+// outcomes are counted (anonymous use never reaches this function) — never
+// document text, user ids, or per-user history.
+const METRICS_PREFIX = "metrics/daily/";
+const METRICS_MAX_ATTEMPTS = 2;
+const METRICS_TIMEOUT_MS = 1000;
+const METRICS_RETENTION_DAYS = 400;
+
 const baseHeaders = {
   "Content-Type": "application/json",
   "Cache-Control": "no-store",
@@ -19,6 +28,67 @@ function respond(statusCode, body) {
 
 function utcDate() {
   return new Date().toISOString().slice(0, 10);
+}
+
+// Metrics are best-effort by design: they may never fail, slow, or
+// double-count a user request. Writes are production-gated so branch-deploy
+// tests cannot pollute the series, time-boxed so a slow Blobs call cannot
+// delay the response, and aborted on any thrown error so a delta is either
+// applied exactly once or dropped (undercount, never double-apply).
+async function recordDailyMetrics(store, date, deltas) {
+  const entries = Object.entries(deltas).filter(([, amount]) => amount > 0);
+  if (entries.length === 0 || process.env.CONTEXT !== "production") return;
+  let timer;
+  try {
+    await Promise.race([
+      applyMetricDeltas(store, date, Object.fromEntries(entries)),
+      new Promise((resolve) => {
+        timer = setTimeout(resolve, METRICS_TIMEOUT_MS);
+      }),
+    ]);
+  } catch (error) {
+    console.warn("metrics: dropped daily deltas (undercount)", error?.name ?? "Error");
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Same compare-and-swap pattern as the quota counter below; retry only when
+// the write lost a race (modified:false).
+async function applyMetricDeltas(store, date, deltas) {
+  const key = `${METRICS_PREFIX}${date}`;
+  for (let attempt = 1; attempt <= METRICS_MAX_ATTEMPTS; attempt++) {
+    const entry = await store.getWithMetadata(key, { type: "json" });
+    const totals = entry?.data ?? {};
+    for (const [field, amount] of Object.entries(deltas)) {
+      totals[field] = (Number.isInteger(totals[field]) ? totals[field] : 0) + amount;
+    }
+    const { modified } = await store.setJSON(
+      key,
+      totals,
+      entry ? { onlyIfMatch: entry.etag } : { onlyIfNew: true },
+    );
+    if (modified) {
+      // The first write of a new day doubles as the retention sweep trigger,
+      // so the sweep runs about once per day instead of on every request.
+      if (!entry) await pruneOldMetrics(store, date);
+      return;
+    }
+  }
+  console.warn(`metrics: dropped daily deltas after ${METRICS_MAX_ATTEMPTS} write conflicts (undercount)`);
+}
+
+// Privacy page promises aggregate totals are not kept beyond ~400 days.
+async function pruneOldMetrics(store, date) {
+  const cutoffMs =
+    new Date(`${date}T00:00:00Z`).getTime() - METRICS_RETENTION_DAYS * 86400000;
+  const cutoff = new Date(cutoffMs).toISOString().slice(0, 10);
+  const { blobs } = await store.list({ prefix: METRICS_PREFIX });
+  for (const blob of blobs) {
+    if (blob.key.slice(METRICS_PREFIX.length) < cutoff) {
+      await store.delete(blob.key);
+    }
+  }
 }
 
 export const handler = async (event, context) => {
@@ -59,6 +129,10 @@ export const handler = async (event, context) => {
   for (let attempt = 1; attempt <= MAX_WRITE_ATTEMPTS; attempt++) {
     const nowIso = new Date().toISOString();
     const entry = await store.getWithMetadata(key, { type: "json" });
+    // Pre-image facts for the metrics deltas, captured before any mutation:
+    // a winning write whose pre-image lacked today's counter is one DAU.
+    const isNewProfile = !entry;
+    const hadToday = Boolean(entry?.data?.daily?.[today]);
     const profile = entry?.data ?? {
       id: user.sub,
       email: user.email ?? "",
@@ -77,6 +151,7 @@ export const handler = async (event, context) => {
 
     const remaining = Math.max(0, DAILY_CHAR_LIMIT - day.chars_used);
     const overLimit = chars !== null && chars > remaining;
+    const firstConversionToday = day.conversions === 0;
     if (chars !== null && !overLimit) {
       day.chars_used += chars;
       day.conversions += 1;
@@ -94,6 +169,8 @@ export const handler = async (event, context) => {
       if (event.httpMethod === "GET") {
         // Losing the race on a read only means another request refreshed the
         // profile first; the counters just read are still fine to display.
+        // The winning write is the one that counts the unique-user metric.
+        await recordDailyMetrics(store, today, { quota_checks: 1 });
         return respond(200, {
           date: today,
           limit: DAILY_CHAR_LIMIT,
@@ -105,6 +182,11 @@ export const handler = async (event, context) => {
     }
 
     if (event.httpMethod === "GET") {
+      await recordDailyMetrics(store, today, {
+        quota_checks: 1,
+        unique_users: hadToday ? 0 : 1,
+        new_usage_profiles: isNewProfile ? 1 : 0,
+      });
       return respond(200, {
         date: today,
         limit: DAILY_CHAR_LIMIT,
@@ -114,6 +196,12 @@ export const handler = async (event, context) => {
     }
 
     if (overLimit) {
+      await recordDailyMetrics(store, today, {
+        debit_attempts: 1,
+        debits_blocked: 1,
+        unique_users: hadToday ? 0 : 1,
+        new_usage_profiles: isNewProfile ? 1 : 0,
+      });
       return respond(200, {
         allowed: false,
         date: today,
@@ -123,6 +211,14 @@ export const handler = async (event, context) => {
       });
     }
 
+    await recordDailyMetrics(store, today, {
+      debit_attempts: 1,
+      debits_allowed: 1,
+      chars_debited: chars,
+      unique_converters: firstConversionToday ? 1 : 0,
+      unique_users: hadToday ? 0 : 1,
+      new_usage_profiles: isNewProfile ? 1 : 0,
+    });
     return respond(200, {
       allowed: true,
       date: today,
@@ -134,5 +230,9 @@ export const handler = async (event, context) => {
 
   // Sustained contention on one user's counter. The client treats a non-OK
   // response as "service unavailable" and falls back to the anonymous limit.
+  await recordDailyMetrics(store, today, {
+    debit_attempts: 1,
+    debit_failures_503: 1,
+  });
   return respond(503, { error: "Could not record usage. Try again." });
 };

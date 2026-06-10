@@ -38,7 +38,7 @@
 
   <main class="legal-wrap">
     <h1>Privacy, in plain language</h1>
-    <p class="legal-updated">Last updated 2026-06-10 &middot; applies to CheapAgent v0.2 beta</p>
+    <p class="legal-updated">Last updated 2026-06-10 &middot; applies to CheapAgent v0.2.1 beta</p>
 
     <h2>Your documents stay in your browser</h2>
     <p>When you paste or upload a document, the conversion runs locally in your browser using the open-source <a href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">doc2toon</a> engine. The text of your document is <strong>never uploaded, never stored, and never sent to a server or an LLM API</strong>. This is true whether you are signed in or not.</p>
@@ -50,7 +50,11 @@
       <li>How many characters and conversions you have used today.</li>
       <li>Timestamps for when the account was created and last used.</li>
     </ul>
-    <p>That is the whole list. <strong>No document bodies, no document titles, no conversion history.</strong> When your browser checks your remaining allowance, it sends only a character count &mdash; a number &mdash; not the text itself. Counters from previous days are discarded; we keep only today's totals.</p>
+    <p>That is the whole account record. <strong>No document bodies, no document titles, no conversion history.</strong> When your browser checks your remaining allowance, it sends only a character count &mdash; a number &mdash; not the text itself. Counters from previous days are discarded from your account record; we keep only today's totals there. The only thing kept day over day is the site-wide aggregate described next.</p>
+
+    <h2>Site-wide daily totals</h2>
+    <p>To understand whether CheapAgent is being used at all, we keep one aggregate counter record per day for the whole site: how many allowance checks, conversions, first-time-today accounts, and debited characters happened that day, as plain totals. These totals contain <strong>no user ids, no emails, and nothing that links a number to an account</strong>. They cover signed-in activity only &mdash; anonymous use still makes no network requests &mdash; and daily totals older than about 400 days are deleted.</p>
+    <p>One honest caveat: on a very low-traffic day, a daily total could in practice reflect a single account's activity. See deletion requests below for how we handle that.</p>
 
     <h2>What we never store</h2>
     <ul>
@@ -78,7 +82,7 @@
     <p>The v0.2 beta has no paid tier and collects no payment information.</p>
 
     <h2>Questions or deletion requests</h2>
-    <p>To ask a question or have your account record deleted, open an issue at <a href="https://github.com/Profusion-AI/cheapagent-ai" target="_blank" rel="noopener">github.com/Profusion-AI/cheapagent-ai</a> or contact the maintainer listed there. Because we store so little, deletion means removing your Identity account and the usage counter keyed to it.</p>
+    <p>To ask a question or have your account record deleted, open an issue at <a href="https://github.com/Profusion-AI/cheapagent-ai" target="_blank" rel="noopener">github.com/Profusion-AI/cheapagent-ai</a> or contact the maintainer listed there. Because we store so little, deletion means removing your Identity account and the usage counter keyed to it. On request we will also zero any site-wide daily total from a day where fewer than three accounts were counted, since on such days the total could otherwise describe your activity. (Daily totals are not linked to accounts, so beyond that there is no per-account history to delete &mdash; none exists.)</p>
 
     <h2>Changes</h2>
     <p>If this page changes in a way that affects what is stored, the change will be noted in the project changelog with the date.</p>

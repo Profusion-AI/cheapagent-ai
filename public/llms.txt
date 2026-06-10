@@ -22,6 +22,7 @@ CheapAgent processes pasted or uploaded Markdown and plain-text content in the b
 - The default app path is static-first on Netlify.
 - Document bodies stay in the browser by default.
 - Optional sign-in via Netlify Identity raises the allowance from 1,000 characters per run to 15,000 characters per day; the quota service receives character counts only, never document text.
+- The quota service keeps site-wide, PII-free aggregate daily totals of signed-in activity (no user ids, no per-user history); anonymous use makes no network requests. Disclosed on the privacy page.
 - A plain-language privacy page lives at https://cheapagent.ai/privacy.html.
 - The app reports measured source size, TOON size, token estimates, token delta, and advisory optimizer warnings.
 - TOON helps most for structured definitions, requirements, tables, rules, and agent instructions. Lossless prose may not shrink.

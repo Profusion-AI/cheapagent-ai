@@ -2,6 +2,26 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.1 - 2026-06-10
+
+Aggregate daily usage counters, disclosed on the privacy page in the same release.
+
+### Added
+
+- Site-wide aggregate daily metrics in the existing `cheapagent-usage` Blobs store (`metrics/daily/YYYY-MM-DD`): quota checks, unique signed-in users, unique converters, new usage profiles, debit attempts/allowed/blocked/503s, and characters debited. PII-free integer totals only — no user ids, no per-user history, no document data, no client-side events. Writes are production-gated (`CONTEXT === "production"`), non-blocking and time-boxed (~1s), use the same compare-and-swap pattern as the quota counter (retry only on `modified:false`; thrown errors abort so failures undercount, never double-apply), and metric blobs older than ~400 days are pruned on the first write of each new day.
+- Privacy page: new "Site-wide daily totals" section disclosing the aggregate counters, the low-traffic identifiability caveat, the ~400-day retention cap, and a defined deletion rule (on request, daily totals counting fewer than three accounts are zeroed). "Last updated" line bumped to v0.2.1.
+- `new_usage_profiles` counts first CheapAgent usage-profile creation in Blobs, not Identity signups — signups remain visible in the Netlify Identity dashboard by design.
+
+### Changed
+
+- README dependency story updated to the published npm package (`doc2toon@^0.2.0`); stale "not published to npm yet" git-pin instructions removed. Lockfile resolves doc2toon 0.2.1 (engine code identical).
+- `llms.txt`: replaced "evidence-style receipts" with the v0.2 verdict/measured-delta/advisory-warnings language; noted the server-side aggregate totals in the current posture.
+
+### Not in this release
+
+- Anonymous usage measurement, traffic sources, funnels, retention cohorts — excluded by design; the privacy promises forbid them.
+- Identity signup/login event hooks (kept off the signup critical path); admin metrics endpoint (read via the Netlify dashboard or CLI until friction is demonstrated).
+
 ## 0.2.0 - 2026-06-10
 
 Beta release: lightweight sign-in and a server-enforced daily allowance.
