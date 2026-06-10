@@ -141,7 +141,7 @@
                 <span id="src-name">Source doc</span>
               </span>
               <span class="ph-meta" id="char-count">0 / 1000 chars</span>
-              <span class="ph-meta" id="quota-meta" hidden></span>
+              <span class="ph-meta" id="quota-meta" aria-live="polite" hidden></span>
             </div>
             <textarea class="src-input" id="source-input" spellcheck="true" aria-label="Source text" placeholder="Paste agent context here. Rules, tool notes, safety instructions, setup steps, repeated sections - all fair game."></textarea>
           </div>
@@ -149,7 +149,7 @@
           <div class="demo-pane right">
             <div class="pane-head">
               <span class="ph-title ph-title-verdict">Verdict</span>
-              <span class="ph-meta status-badge" id="status-badge" data-state="info">ready</span>
+              <span class="ph-meta status-badge" id="status-badge" data-state="info" role="status">ready</span>
             </div>
 
             <div class="result-pane">
@@ -168,7 +168,7 @@
               </div>
 
               <div class="result-live" id="result-live">
-                <div class="verdict-card" id="verdict-card">
+                <div class="verdict-card" id="verdict-card" aria-live="polite">
                   <span class="verdict-kicker">Verdict</span>
                   <h3 id="verdict-title">Run a check.</h3>
                   <p id="verdict-body">CheapAgent will say whether TOON helps this input.</p>
@@ -219,7 +219,7 @@
         </div>
 
         <div class="demo-foot">
-          <span class="privacy" id="input-notice">Measured locally. Document text is not stored by default.</span>
+          <span class="privacy" id="input-notice" aria-live="polite">Measured locally. Document text is not stored by default.</span>
           <label class="btn btn-line btn-sm file-action" for="file-input">Upload .md or .txt</label>
           <input id="file-input" type="file" accept=".md,.txt,text/markdown,text/plain">
           <button class="btn btn-line btn-sm" id="sample-button" type="button">Load sample</button>

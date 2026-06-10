@@ -15,6 +15,7 @@ Beta release: lightweight sign-in and a server-enforced daily allowance.
 - Storage-consent banner on first visit (`src/consent.js`), shown on both pages: "Allow all" or "Essential only". CheapAgent sets no advertising or analytics cookies; the choice governs optional storage (theme preference). Choosing essential-only clears and disables theme persistence. A "Cookie preferences" footer link reopens the choice.
 - Account chip in the nav with email and sign-out; live "characters left today" readout next to the input counter.
 - Vite multi-page build (`vite.config.js`) covering the privacy page.
+- Agent interface contract in `llms.txt`: stable DOM ids for the workbench, auth, quota, and consent controls; guidance that programmatic conversion should use the doc2toon CLI/library rather than driving the web UI; a documented caveat that the sign-in dialog lives in the Identity widget's iframe. Live regions (`aria-live`/`role="status"`) added to the verdict card, status badge, quota readout, and notice line so assistive tech and agents get state changes pushed.
 
 ### Changed
 
