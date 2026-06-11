@@ -1,4 +1,4 @@
-import { convertTextToToon } from "doc2toon/browser";
+import { runVerdict } from "doc2toon/browser";
 import { initAuth, onAuthChange, currentUser, openSignIn, signOut, authToken } from "./auth.js";
 import { initConsentBanner, functionalStorageAllowed } from "./consent.js";
 
@@ -43,6 +43,7 @@ const tokenPercent = document.querySelector("#token-percent");
 const warningsList = document.querySelector("#warnings-list");
 const output = document.querySelector("#output");
 const copyButton = document.querySelector("#copy-button");
+const copySummaryButton = document.querySelector("#copy-summary-button");
 const downloadButton = document.querySelector("#download-button");
 const toonName = document.querySelector("#toon-name");
 
@@ -53,6 +54,7 @@ const afterNumber = document.querySelector("#ba-after-n");
 
 let activeMode = "claude";
 let latestToon = "";
+let latestVerdict = null;
 let latestFilename = "cheapagent-output.toon";
 let usingSample = false;
 let dailyQuota = null;
@@ -148,11 +150,18 @@ const modeConfig = {
   },
 };
 
+// Labels for the verdict contract's warning codes (schemas/verdict.v1.json). The code set is
+// open: unknown codes render as the code itself plus the engine's message.
 const warningLabels = {
   duplicate_rule: "Duplicate instruction",
   vague_rule: "Vague instruction",
   long_section: "Long section",
   split_candidate: "Split candidate",
+  low_coverage: "Low content coverage",
+  lossy_applied: "Lossy output",
+  negative_savings: "Output larger than source",
+  target_not_reached: "Budget target missed",
+  budget_refused: "Budget refused",
 };
 
 const warningExplanations = {
@@ -160,32 +169,39 @@ const warningExplanations = {
   vague_rule: "This rule is too broad to be reliably followed. Make it specific or remove it.",
   long_section: "This block is carrying too much. Split it into smaller, named sections.",
   split_candidate: "This section may convert better as its own context block.",
-  conversion_note: "The output changed structure. Review before copying.",
 };
 
-const verdicts = {
-  toonWins: {
+// Presentation for VerdictV1.verdict. The decision comes from doc2toon's buildVerdict — the
+// same policy behind the CLI, MCP, and serve surfaces. The web renders it, never re-derives it.
+const verdictPresentation = {
+  convert: {
     title: "TOON helps here.",
     body: "This input has enough structure to shrink cleanly. Copy the TOON output or download it.",
     badge: "TOON helps",
     state: "optimized",
   },
-  keepMarkdown: {
+  keep_markdown: {
     title: "Keep Markdown.",
     body: "TOON does not improve this input. Keep the original or split the doc first.",
     badge: "keep md",
     state: "info",
   },
-  splitFirst: {
+  split_first: {
     title: "Split first.",
     body: "Long or mixed sections are hiding the savings. Break the doc into cleaner parts before converting.",
     badge: "split first",
     state: "info",
   },
-  reviewNeeded: {
+  review: {
     title: "Review before copying.",
     body: "CheapAgent found issues that may affect agent behavior. Check the warnings before using the output.",
     badge: "review",
+    state: "info",
+  },
+  refused: {
+    title: "Budget refused.",
+    body: "The token budget cannot be met losslessly, and lossy output was not permitted. Raise the budget or allow lossy mode.",
+    badge: "refused",
     state: "info",
   },
 };
@@ -388,8 +404,10 @@ function resetOutput(message = "Run a check to see whether TOON helps this input
   output.textContent = "";
   toonName.textContent = selectedConfig().filename;
   latestToon = "";
+  latestVerdict = null;
   latestFilename = selectedConfig().filename;
   copyButton.disabled = true;
+  copySummaryButton.disabled = true;
   downloadButton.disabled = true;
   beforeBar.style.width = "0%";
   afterBar.style.width = "0%";
@@ -429,32 +447,25 @@ function loadSample({ run = false } = {}) {
   }
 }
 
-function renderWarnings(result) {
+function renderWarnings(verdict) {
   const cards = [];
 
-  for (const warning of result.optimizerWarnings ?? []) {
+  for (const warning of verdict.warnings ?? []) {
     const severity = escapeHtml(warning.severity ?? "info");
-    const location = warning.lineStart
-      ? `line ${warning.lineEnd && warning.lineEnd !== warning.lineStart ? `${warning.lineStart}-${warning.lineEnd}` : warning.lineStart}`
+    const lineStart = warning.range?.line_start;
+    const lineEnd = warning.range?.line_end;
+    const location = lineStart
+      ? `line ${lineEnd && lineEnd !== lineStart ? `${lineStart}-${lineEnd}` : lineStart}`
       : "source";
+    const detail = warningExplanations[warning.code] ?? `${warning.message} ${warning.suggestion ?? ""}`.trim();
     cards.push(`
       <article class="warning-card" data-severity="${severity}">
-        <span class="wn">${escapeHtml(warning.kind?.slice(0, 1).toUpperCase() ?? "I")}</span>
-        <span class="wt">${escapeHtml(warningLabels[warning.kind] ?? warning.kind)}
-          <small>${escapeHtml(warningExplanations[warning.kind] ?? `${warning.message} ${warning.suggestion ?? ""}`)}</small>
+        <span class="wn">${escapeHtml(warning.code?.slice(0, 1).toUpperCase() ?? "I")}</span>
+        <span class="wt">${escapeHtml(warningLabels[warning.code] ?? warning.code)}
+          <small>${escapeHtml(detail)}</small>
           ${warning.evidence ? `<small class="evidence">${escapeHtml(warning.evidence)}</small>` : ""}
         </span>
         <span class="wa">${escapeHtml(location)}</span>
-      </article>
-    `);
-  }
-
-  for (const warning of result.warnings ?? []) {
-    cards.push(`
-      <article class="warning-card" data-severity="info">
-        <span class="wn">i</span>
-        <span class="wt">Conversion note<small>${escapeHtml(warningExplanations.conversion_note)}</small>${warning ? `<small class="evidence">${escapeHtml(warning)}</small>` : ""}</span>
-        <span class="wa">info</span>
       </article>
     `);
   }
@@ -467,52 +478,44 @@ function renderWarnings(result) {
   warningsList.innerHTML = cards.join("");
 }
 
-function renderResult(result, config) {
-  const tokenSavings = result.stats.tokenSavings;
-  const tokenSavingsPercent = result.stats.tokenSavingsPercent;
-  const sourceTokenCount = Math.max(1, result.stats.sourceTokens);
-  const toonTokenCount = Math.max(1, result.stats.toonTokens);
-  const larger = tokenSavings < 0;
-  const optimized = tokenSavings > 0;
+function renderResult(verdict, config) {
+  const presentation = verdictPresentation[verdict.verdict] ?? verdictPresentation.review;
+  const chars = verdict.measured_chars;
+  const tokens = verdict.token_estimates;
+  const larger = tokens.savings < 0;
+  const sourceTokenCount = Math.max(1, tokens.source);
+  const toonTokenCount = Math.max(1, tokens.toon);
   const afterWidth = Math.min(100, Math.max(8, (toonTokenCount / sourceTokenCount) * 100));
 
-  const warningKinds = new Set((result.optimizerWarnings ?? []).map((warning) => warning.kind));
-  let verdict = verdicts.toonWins;
-  if (warningKinds.has("long_section") || warningKinds.has("split_candidate")) {
-    verdict = verdicts.splitFirst;
-  } else if (!optimized || larger) {
-    verdict = verdicts.keepMarkdown;
-  } else if ((result.optimizerWarnings ?? []).length > 0 || (result.warnings ?? []).length > 0) {
-    verdict = verdicts.reviewNeeded;
-  }
-
-  sourceChars.textContent = formatNumber(result.stats.sourceChars);
-  sourceTokens.textContent = `~${formatNumber(result.stats.sourceTokens)} tokens`;
-  toonChars.textContent = formatNumber(result.stats.toonChars);
-  toonTokens.textContent = `~${formatNumber(result.stats.toonTokens)} tokens`;
-  tokenDelta.textContent = formatSigned(tokenSavings);
-  tokenPercent.textContent = larger ? `${formatPercent(Math.abs(tokenSavingsPercent))} larger` : `${formatPercent(tokenSavingsPercent)} saved`;
+  sourceChars.textContent = formatNumber(chars.source);
+  sourceTokens.textContent = `~${formatNumber(tokens.source)} tokens`;
+  toonChars.textContent = formatNumber(chars.toon);
+  toonTokens.textContent = `~${formatNumber(tokens.toon)} tokens`;
+  tokenDelta.textContent = formatSigned(tokens.savings);
+  tokenPercent.textContent = larger ? `${formatPercent(Math.abs(tokens.savings_pct))} larger` : `${formatPercent(tokens.savings_pct)} saved`;
 
   beforeBar.style.width = "100%";
   afterBar.style.width = `${afterWidth}%`;
-  beforeNumber.textContent = `${formatNumber(result.stats.sourceTokens)} tok`;
-  afterNumber.textContent = `${formatNumber(result.stats.toonTokens)} tok`;
+  beforeNumber.textContent = `${formatNumber(tokens.source)} tok`;
+  afterNumber.textContent = `${formatNumber(tokens.toon)} tok`;
 
-  verdictTitle.textContent = verdict.title;
-  verdictBody.textContent = verdict.body;
-  resultSummary.textContent = `${verdict.title} ${verdict.body}`;
-  setStatus(verdict.badge, verdict.state);
-  renderWarnings(result);
+  verdictTitle.textContent = presentation.title;
+  verdictBody.textContent = presentation.body;
+  resultSummary.textContent = `${presentation.title} ${presentation.body}`;
+  setStatus(presentation.badge, presentation.state);
+  renderWarnings(verdict);
 
-  latestToon = result.toon;
+  latestVerdict = verdict;
+  latestToon = verdict.toon_candidate ?? "";
   latestFilename = config.filename;
   toonName.textContent = config.filename;
-  output.textContent = result.toon;
-  copyButton.disabled = false;
-  downloadButton.disabled = false;
+  output.textContent = latestToon;
+  copyButton.disabled = !latestToon;
+  copySummaryButton.disabled = false;
+  downloadButton.disabled = !latestToon;
   setNotice(
-    optimized
-      ? `Measured ${formatNumber(sourceInput.value.trimEnd().length)} characters locally.`
+    chars.savings > 0
+      ? `Measured ${formatNumber(chars.source)} characters locally.`
       : "TOON did not win. This output is larger or less useful than the source. Keep Markdown or split the doc first.",
   );
   setPanelState("live");
@@ -555,14 +558,13 @@ async function runConversion() {
   window.setTimeout(() => {
     try {
       measuringText.textContent = "Encoding TOON...";
-      const result = convertTextToToon({
-        text,
+      const verdict = runVerdict(text, {
         flavor: activeMode === "toon" ? detectFlavor(text) : "markdown",
         sourceType: "paste",
         mode: config.mode,
         delimiter: "auto",
       });
-      renderResult(result, config);
+      renderResult(verdict, config);
     } catch (error) {
       resetOutput("Review before copying.");
       setStatus("error", "error");
@@ -584,6 +586,39 @@ async function copyOutput() {
   }
   const copied = await copyText(latestToon);
   setNotice(copied ? "Copied output." : "Clipboard access is unavailable. Select the TOON output manually.");
+}
+
+// A shareable, paste-anywhere rendering of VerdictV1 built from the schema's own field names.
+// Deliberately excludes the document body and the TOON output: the summary is the receipt.
+function buildSummaryText(verdict) {
+  const chars = verdict.measured_chars;
+  const tokens = verdict.token_estimates;
+  const warningSummary = (verdict.warnings ?? [])
+    .map((warning) => `${warning.code} (${warning.severity})`)
+    .join(", ");
+  return [
+    "CheapAgent context check — To TOONify or not?",
+    `verdict: ${verdict.verdict}`,
+    `safe_to_auto_apply: ${verdict.safe_to_auto_apply}`,
+    `profile: ${verdict.profile.name} (${verdict.profile.source_type})`,
+    `measured_chars: source ${chars.source} → toon ${chars.toon} (savings_pct: ${chars.savings_pct.toFixed(1)})`,
+    `token_estimates (${tokens.estimator}): ~${tokens.source} → ~${tokens.toon} tokens`,
+    `warnings: ${warningSummary || "none"}`,
+    `mode: ${verdict.mode}`,
+    "Run yours: https://cheapagent.ai",
+  ].join("\n");
+}
+
+async function copySummary() {
+  if (!latestVerdict) {
+    return;
+  }
+  const copied = await copyText(buildSummaryText(latestVerdict));
+  setNotice(
+    copied
+      ? "Copied verdict summary. No document text is included."
+      : "Clipboard access is unavailable. Select the TOON output manually.",
+  );
 }
 
 function downloadOutput() {
@@ -735,6 +770,7 @@ document.querySelectorAll(".demo-mode").forEach((button) => {
 sampleButton.addEventListener("click", () => loadSample());
 resetButton.addEventListener("click", clearInput);
 copyButton.addEventListener("click", copyOutput);
+copySummaryButton.addEventListener("click", copySummary);
 downloadButton.addEventListener("click", downloadOutput);
 themeToggle.addEventListener("click", () => {
   setTheme(root.dataset.theme === "dark" ? "light" : "dark");

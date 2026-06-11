@@ -2,6 +2,20 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.3 - 2026-06-11
+
+The web verdict now comes from the frozen contract; one engine, all surfaces.
+
+### Added
+
+- "Copy summary" button (`#copy-summary-button`): copies a plain-text rendering of the Verdict v1 object built from the schema's own field names — verdict, safe_to_auto_apply, profile, measured_chars, token_estimates, warning codes, mode, and a "Run yours" link. The summary never includes the document body or the TOON output, so it is safe to paste into issues, chats, and posts.
+
+### Changed
+
+- The verdict is now computed by `runVerdict` from `doc2toon@^0.3.0` — the frozen Verdict v1 contract — instead of a local derivation in `src/main.js`. The web app renders the engine's decision and never re-derives it, so the web verdict equals the CLI `--json` verdict for the same input. User-visible behavior on the built-in samples is unchanged (verified flip-free during calibration and re-verified in this release).
+- Warning cards render the contract's coded warnings (`duplicate_rule`, `vague_rule`, `long_section`, `split_candidate`, plus conversion-state codes such as `low_coverage`, `lossy_applied`, `negative_savings`). Unknown codes render generically — the code set is open by contract.
+- `llms.txt` updated: programmatic guidance now points at `doc2toon profile --json` / `runVerdict`, and the `#copy-summary-button` contract is documented.
+
 ## 0.2.2 - 2026-06-10
 
 First-party sign-in form; the Identity widget iframe is gone.

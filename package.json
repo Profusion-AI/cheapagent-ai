@@ -1,6 +1,6 @@
 {
   "name": "cheapagent-ai",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "Browser-side context efficiency workbench for measuring and converting agent documents with doc2toon.",
   "type": "module",
@@ -13,7 +13,7 @@
   "dependencies": {
     "@netlify/blobs": "^10.7.9",
     "@netlify/identity": "^1.2.0",
-    "doc2toon": "^0.2.0"
+    "doc2toon": "^0.3.0"
   },
   "devDependencies": {
     "vite": "^7.2.4"

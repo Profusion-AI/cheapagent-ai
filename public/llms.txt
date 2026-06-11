@@ -13,7 +13,7 @@ CheapAgent processes pasted or uploaded Markdown and plain-text content in the b
 ## Product boundary
 
 - [CheapAgent app](https://cheapagent.ai/): Use this as the canonical public product URL.
-- [doc2toon browser export](https://github.com/Profusion-AI/doc2toon): CheapAgent imports `convertTextToToon` from `doc2toon/browser`; it should not reach into private source paths, sibling repos, or built distribution files outside the package boundary.
+- [doc2toon browser export](https://github.com/Profusion-AI/doc2toon): CheapAgent imports `runVerdict` from `doc2toon/browser` (doc2toon ^0.3) — the same frozen Verdict v1 policy behind the CLI's `--json`; it should not reach into private source paths, sibling repos, or built distribution files outside the package boundary.
 - [doc2toon README](https://github.com/Profusion-AI/doc2toon#readme): Use this for engine capabilities, supported modes, metrics, and limitations.
 
 ## Current posture
@@ -24,7 +24,7 @@ CheapAgent processes pasted or uploaded Markdown and plain-text content in the b
 - Optional sign-in via Netlify Identity raises the allowance from 1,000 characters per run to 15,000 characters per day; the quota service receives character counts only, never document text.
 - The quota service keeps site-wide, PII-free aggregate daily totals of signed-in activity (no user ids, no per-user history); anonymous use makes no network requests. Disclosed on the privacy page.
 - A plain-language privacy page lives at https://cheapagent.ai/privacy.html.
-- The app reports measured source size, TOON size, token estimates, token delta, and advisory optimizer warnings.
+- The app reports measured source size, TOON size, token estimates, token delta, and the contract's coded warnings. The verdict is computed by doc2toon's `buildVerdict` (Verdict v1, `schemas/verdict.v1.json` in the doc2toon package) — the web app renders the engine's decision and never re-derives it, so the web verdict equals the CLI `--json` verdict for the same input.
 - TOON helps most for structured definitions, requirements, tables, rules, and agent instructions. Lossless prose may not shrink.
 
 ## Claims boundary
@@ -36,7 +36,7 @@ CheapAgent processes pasted or uploaded Markdown and plain-text content in the b
 
 ## Agent guidance
 
-- For programmatic conversion, use the engine directly instead of driving this website: `npx doc2toon convert FILE --stats` (CLI) or `import { convertTextToToon } from "doc2toon/browser"` (library). The web workbench is a human UI over the same engine.
+- For programmatic conversion, use the engine directly instead of driving this website: `npx doc2toon profile --json FILE` (CLI, returns the Verdict v1 object) or `import { runVerdict } from "doc2toon/browser"` (library). The web workbench is a human UI over the same engine and the same verdict policy.
 - Prefer `https://cheapagent.ai/` for public product references.
 - Prefer `https://github.com/Profusion-AI/doc2toon` for engine/library references.
 - If summarizing CheapAgent, mention that it measures context efficiency and reports a verdict with measured token deltas and advisory warnings instead of silently rewriting user documents.
@@ -51,9 +51,10 @@ For agents operating the workbench page on a user's behalf, this DOM contract is
 - `#measureBtn` / `#measureBtn2` — run the check (both submit the `#alpha-form` form).
 - `.demo-mode[data-mode]` — conversion-target tabs; values `claude`, `agents`, `skill`, `toon`. Arrow keys also switch tabs.
 - `#sample-button` — loads a local sample (sample runs never debit quota); `#reset-button` — clears the input.
-- `#verdict-title`, `#verdict-body`, `#status-badge` — the yes/no verdict after a run ("TOON helps here." / "Keep Markdown." / "Split first." / "Review before copying.").
+- `#verdict-title`, `#verdict-body`, `#status-badge` — the verdict after a run ("TOON helps here." / "Keep Markdown." / "Split first." / "Review before copying."). These render the engine's Verdict v1 enum (`convert`, `keep_markdown`, `split_first`, `review`, `refused`); `refused` only occurs for budget-mode runs, which the UI does not currently expose.
 - `#source-tokens`, `#toon-tokens`, `#token-delta`, `#token-percent` — measured result for this input.
 - `#output` — TOON output text; `#copy-button`, `#download-button` — output actions.
+- `#copy-summary-button` — copies a plain-text verdict summary built from the Verdict v1 field names (verdict, safe_to_auto_apply, profile, measured_chars, token_estimates, warning codes, mode). It never includes the document body or the TOON output.
 - `#char-count` — current per-run limit; `#quota-meta` — signed-in daily allowance remaining; `#input-notice` — status notices (quota blocks, fallbacks, errors). The notice, quota, and verdict regions are `aria-live`.
 - `#signin-button`, `#account-email`, `#signout-button` — auth controls.
 - `#auth-dialog` — first-party sign-in dialog (a native `<dialog>` in the page DOM as of v0.2.2; no iframe — all elements are reachable by ordinary queries). Its `data-view` attribute reflects the active view: `login`, `signup`, `forgot`, `reset`, `sent`, or `notice`. Inside it: `#auth-tab-login` / `#auth-tab-signup` switch modes; `#auth-email`, `#auth-password`, `#auth-new-password` are the inputs (inputs outside the active view are `disabled`); `#auth-submit` submits; `#auth-forgot` / `#auth-back` switch to and from password recovery; `#auth-status` is an `aria-live` error/progress region; `#auth-close` closes. Credentials go directly to Netlify Identity.
