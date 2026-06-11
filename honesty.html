@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="green">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The CheapAgent honesty benchmark: across 19 test documents, TOON earns a convert verdict on exactly one. Real agent docs mostly measure worse. Run yours.">
+  <title>CheapAgent - The honesty benchmark</title>
+  <link rel="icon" href="/assets/cheapagent-logo-knockout.png" type="image/png">
+  <link rel="canonical" href="https://cheapagent.ai/honesty.html">
+  <link rel="stylesheet" href="/src/tokens.css">
+  <link rel="stylesheet" href="/src/styles.css">
+  <script type="module" src="/src/privacy-page.js"></script>
+  <style>
+    .legal-wrap { max-width: 760px; margin: 0 auto; padding: 110px 20px 80px; }
+    .legal-wrap h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+    .legal-wrap .legal-updated { color: var(--color-text-subtle); font-size: 0.85rem; }
+    .legal-wrap h2 { margin-top: 2.2rem; font-size: 1.2rem; }
+    .legal-wrap p, .legal-wrap li { color: var(--color-text-muted); line-height: 1.65; }
+    .legal-wrap ul { padding-left: 1.2rem; }
+    .legal-wrap strong { color: var(--color-text); }
+    .legal-wrap code { color: var(--color-text); background: color-mix(in srgb, var(--color-text) 8%, transparent); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
+    .legal-wrap pre { background: color-mix(in srgb, var(--color-text) 6%, transparent); border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); border-radius: 8px; padding: 14px 16px; overflow-x: auto; }
+    .legal-wrap pre code { background: none; padding: 0; }
+    .bench-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.9rem; }
+    .bench-table th, .bench-table td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); color: var(--color-text-muted); }
+    .bench-table th { color: var(--color-text); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .bench-table .win td { color: var(--color-text); font-weight: 600; }
+    .bench-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <div class="bg-field" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <nav class="nav scrolled" id="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/" aria-label="CheapAgent home">
+        <img class="brand-logo" src="/assets/cheapagent-logo-knockout.png" alt="">
+        <span class="wm">cheap<b>agent</b></span>
+      </a>
+      <div class="nav-right">
+        <a class="btn btn-line btn-sm" href="/">Back to workbench</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="legal-wrap">
+    <h1>TOON earns a convert verdict on 1 of our 19 test documents.</h1>
+    <p class="legal-updated">First honesty post &middot; 2026-06-11 &middot; measured with doc2toon 0.3.0 &middot; every number below reproduces with one command</p>
+
+    <p>CheapAgent converts agent documents to <a href="https://github.com/toon-format/toon" target="_blank" rel="noopener">TOON</a> when that saves tokens. Most tools in this space lead with their best case. We maintain a benchmark precisely so we can't: 19 documents &mdash; realistic agent docs at real sizes, deliberately problematic ones, and small examples &mdash; run through the same verdict engine that powers this site, the CLI, and everything else. In lossless mode, where the output preserves the source content by construction, the engine's own verdict is <code>convert</code> on exactly <strong>one</strong> of them.</p>
+
+    <h2>The headline rows</h2>
+    <table class="bench-table">
+      <thead>
+        <tr><th>Document</th><th>Profile</th><th class="bench-num">Lossless &Delta; chars</th><th>Verdict</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>CLAUDE.md, realistic (20,056 chars)</td><td>mixed</td><td class="bench-num">&minus;37.8%</td><td>split_first</td></tr>
+        <tr><td>AGENTS.md, realistic (19,690 chars)</td><td>mixed</td><td class="bench-num">&minus;62.1%</td><td>keep_markdown</td></tr>
+        <tr><td>SKILL.md, realistic (19,265 chars)</td><td>mixed</td><td class="bench-num">&minus;38.9%</td><td>keep_markdown</td></tr>
+        <tr><td>Architecture RFC (44,790 chars)</td><td>requirements</td><td class="bench-num">&minus;1.5%</td><td>keep_markdown</td></tr>
+        <tr class="win"><td>Config reference (32,319 chars)</td><td>table</td><td class="bench-num">+21.1%</td><td>convert</td></tr>
+        <tr><td>Worst case: a small mixed doc with one table</td><td>mixed</td><td class="bench-num">&minus;142.3%</td><td>keep_markdown</td></tr>
+      </tbody>
+    </table>
+    <p>Negative means the TOON output is <em>larger</em> than the source. Yes, the worst case is a document with a table in it: TOON's quoting and structure overhead on the prose around the table more than doubles the document.</p>
+
+    <h2>Why TOON loses on real agent docs</h2>
+    <p>Real CLAUDE.md, AGENTS.md, and SKILL.md files profile as <code>mixed</code>: prose, lists, headings, the occasional table. TOON is a tabular format. Encoding prose into it buys structure overhead with no repetition to amortize it against, so the measured delta lands between &minus;37.8% and &minus;62.1% on our realistic agent docs (a smaller AGENTS.md fixture measures &minus;129.0%). Their honest verdicts are <code>keep_markdown</code> or <code>split_first</code> &mdash; which is the advice this site actually gives, because the verdict on this page, in the workbench, and in the CLI is the same function.</p>
+
+    <h2>The one win, and why we trust it</h2>
+    <p>The config reference is a 32k-character uniform table: 294 rows, consistent columns. TOON removes the per-row Markdown scaffolding and measures <strong>+21.1%</strong> smaller, decode-verified row for row (294/294). It is the corpus's only <code>safe_to_auto_apply: true</code> row. One honest caveat even here: table conversion currently keeps 91% of content characters &mdash; the title and captions around the table are dropped, a documented v1 limitation.</p>
+
+    <h2>The fake wins we refuse to count</h2>
+    <p>Two ways to fake a savings number, and what the engine does about them:</p>
+    <ul>
+      <li><strong>Deleting content.</strong> Record mode can claim +80.0% on a prose essay &mdash; while retaining 18% of the source's content characters. The same trick claims +91.6% on the architecture RFC at 8% retained. Both runs now fire a <code>low_coverage</code> warning and land on <code>review</code>, never <code>convert</code>. A savings number that comes from deleting the document is not a savings number.</li>
+      <li><strong>Counting noise.</strong> A glossary measures +4.7% in record mode. That stays <code>keep_markdown</code>: savings under our 5% band don't justify a format change, because measurements that small sit inside encoding noise &mdash; re-encoding line endings alone once moved a fixture's measurement by two points. We learned that one the hard way and pinned the corpus.</li>
+    </ul>
+
+    <h2>Run yours</h2>
+    <p>Your documents are not our corpus. The same verdict, three ways:</p>
+    <pre><code># Verdict v1 JSON for your own doc (Node 20+)
+npx doc2toon@^0.3 profile --json CLAUDE.md
+
+# Or paste it into the workbench - it never leaves your browser
+# https://cheapagent.ai/
+
+# Or reproduce this page's numbers from the corpus
+git clone https://github.com/Profusion-AI/doc2toon
+cd doc2toon &amp;&amp; npm install &amp;&amp; npm run build
+node scripts/benchmark-honesty.mjs</code></pre>
+
+    <h2>The posture</h2>
+    <p><strong>CheapAgent does not promise TOON always saves tokens. It tells you when it does</strong> &mdash; and on real agent docs, the honest answer is usually &ldquo;keep Markdown&rdquo; or &ldquo;split this first.&rdquo; The verdict is the product. If a tool in this space shows you only its wins, ask to see its corpus.</p>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-bottom">
+        <span>Different output. Same task. Less waste.</span>
+        <span>Independent project built on TOON. Not affiliated with the TOON project.</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

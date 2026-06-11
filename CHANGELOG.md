@@ -9,6 +9,7 @@ The web verdict now comes from the frozen contract; one engine, all surfaces.
 ### Added
 
 - "Copy summary" button (`#copy-summary-button`): copies a plain-text rendering of the Verdict v1 object built from the schema's own field names — verdict, safe_to_auto_apply, profile, measured_chars, token_estimates, warning codes, mode, and a "Run yours" link. The summary never includes the document body or the TOON output, so it is safe to paste into issues, chats, and posts.
+- `/honesty.html` — the first honesty post: TOON earns `convert` on 1 of the 19 benchmark documents; realistic agent docs measure −37.8% to −62.1% and verdict `keep_markdown`/`split_first`. Every number reproduces from `doc2toon` (`scripts/benchmark-honesty.mjs` / `docs/calibration-v1.md`). Linked from the homepage honesty section and footer; added to the sitemap (`apply-deploy-env.mjs` now handles a secondary-pages list).
 
 ### Changed
 
