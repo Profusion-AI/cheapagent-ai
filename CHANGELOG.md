@@ -2,6 +2,19 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.4 - 2026-06-11
+
+The honesty benchmark gets an out-of-sample section: real agent docs from public repos.
+
+### Added
+
+- `/honesty.html` "External corpus" section: 10 agent docs from 8 public repos (github/spec-kit, browser-use, langchain py+js, langflow, OpenHands, litellm, uv — 17.8k–149k stars, MIT or MIT-with-carveout verified at the pin, commit-pinned before measurement, thresholds frozen in advance). Result: 0 convert, 9 split_first, 1 keep_markdown; measured deltas −10.5% to −86.4%; `safe_to_auto_apply` on none. Published as measurements with attribution — no third-party file bodies. Two pointer files recorded but not counted. Reproduction: `scripts/benchmark-external.mjs` in the doc2toon repo (fetches at pinned SHAs).
+- The internal corpus's provenance is now stated on the page (original content describing fictional projects, written by the team) — the external section exists precisely to remove that objection.
+
+### Changed
+
+- Homepage honesty link, README, and `llms.txt` now cite both corpora separately: 1 convert on 19 internal documents, 0 on 10 public documents.
+
 ## 0.2.3 - 2026-06-11
 
 The web verdict now comes from the frozen contract: CLI and web share the Verdict v1 engine. (Upcoming Action/MCP/serve surfaces must consume the same contract.)

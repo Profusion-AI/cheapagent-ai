@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="The CheapAgent honesty benchmark: across 19 test documents, TOON earns a convert verdict on exactly one. Real agent docs mostly measure worse. Run yours.">
+  <meta name="description" content="The CheapAgent honesty benchmark: across 19 internal test documents and 10 real agent docs from public repos, TOON earns a convert verdict exactly once. Run yours.">
   <title>CheapAgent - The honesty benchmark</title>
   <link rel="icon" href="/assets/cheapagent-logo-knockout.png" type="image/png">
   <link rel="canonical" href="https://cheapagent.ai/honesty.html">
@@ -46,7 +46,7 @@
 
   <main class="legal-wrap">
     <h1>TOON earns a convert verdict on 1 of our 19 test documents.</h1>
-    <p class="legal-updated">First honesty post &middot; 2026-06-11 &middot; measured with doc2toon 0.3.0 &middot; every number below reproduces with one command</p>
+    <p class="legal-updated">First honesty post &middot; 2026-06-11 &middot; external corpus (10 public-repo docs) added same day &middot; measured with doc2toon 0.3.0 &middot; every number below reproduces from the repo</p>
 
     <p>CheapAgent converts agent documents to <a href="https://github.com/toon-format/toon" target="_blank" rel="noopener">TOON</a> when that saves tokens. Most tools in this space lead with their best case. We maintain a benchmark precisely so we can't: 19 documents &mdash; realistic agent docs at real sizes, deliberately problematic ones, and small examples &mdash; run through the same verdict engine that powers this site and the CLI. In lossless mode, where the output preserves the source content by construction, the engine's own verdict is <code>convert</code> on exactly <strong>one</strong> of them.</p>
 
@@ -79,6 +79,28 @@
       <li><strong>Counting noise.</strong> A glossary measures +4.7% in record mode. That stays <code>keep_markdown</code>: savings under our 5% band don't justify a format change, because measurements that small sit inside encoding noise &mdash; re-encoding line endings alone once moved a fixture's measurement by two points. We learned that one the hard way and pinned the corpus.</li>
     </ul>
 
+    <h2>External corpus: real agent docs from public repos</h2>
+    <p>One fair objection to everything above: the 19 documents are ours &mdash; original content describing fictional projects, committed in the repo, written by the team that built the verdict policy. So we ran the same released CLI against agent docs we don't control: <strong>10 documents from 8 public repos</strong> (17.8k&ndash;149k stars), each MIT-licensed or explicitly MIT for the content measured, each pinned to an exact commit SHA before measurement, with thresholds frozen in advance. We store and publish measurements with attribution &mdash; not copies of anyone's files.</p>
+    <table class="bench-table">
+      <thead>
+        <tr><th>Document</th><th>Profile</th><th class="bench-num">Lossless &Delta; chars</th><th>Verdict</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>github/spec-kit &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;41.3%</td><td>split_first</td></tr>
+        <tr><td>browser-use &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;22.7%</td><td>split_first</td></tr>
+        <tr><td>browser-use &middot; CLAUDE.md</td><td>mixed</td><td class="bench-num">&minus;86.4%</td><td>split_first</td></tr>
+        <tr><td>browser-use &middot; skills/browser-use/SKILL.md</td><td>mixed</td><td class="bench-num">&minus;22.8%</td><td>split_first</td></tr>
+        <tr><td>langchain-ai/langchain &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;50.7%</td><td>split_first</td></tr>
+        <tr><td>langchain-ai/langchainjs &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;42.8%</td><td>keep_markdown</td></tr>
+        <tr><td>langflow-ai/langflow &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;42.4%</td><td>split_first</td></tr>
+        <tr><td>OpenHands &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;49.5%</td><td>split_first</td></tr>
+        <tr><td>BerriAI/litellm &middot; CLAUDE.md</td><td>mixed</td><td class="bench-num">&minus;78.8%</td><td>split_first</td></tr>
+        <tr><td>astral-sh/uv &middot; AGENTS.md</td><td>requirements</td><td class="bench-num">&minus;10.5%</td><td>split_first</td></tr>
+      </tbody>
+    </table>
+    <p><strong>0 convert. 9 split_first. 1 keep_markdown. <code>safe_to_auto_apply</code> on none.</strong> Every one of these real files would get <em>larger</em> in TOON &mdash; from 10.5% to 86.4% &mdash; and the engine says so. The dominant finding is <code>long_section</code> (these docs carry a lot per heading), and <code>duplicate_rule</code> fired on two of the most-starred repos in the set: real context bloat in famous files, which is the product's actual job. Two additional files (litellm's AGENTS.md, uv's CLAUDE.md) turned out to be pointers to another agent doc &mdash; real linking behavior worth recording, but we don't count one-line files as benchmark documents.</p>
+    <p>On our internal calibration corpus, TOON earned <code>convert</code> on 1 of 19 documents. On public agent-context files, the pattern is the same: CheapAgent often refuses conversion, sometimes recommends splitting, and converts only when the structure earns it.</p>
+
     <h2>Run yours</h2>
     <p>Your documents are not our corpus. The same verdict, three ways:</p>
     <pre><code># Verdict v1 JSON for your own doc (Node 20+)
@@ -90,7 +112,8 @@ npx doc2toon@^0.3 profile --json CLAUDE.md
 # Or reproduce this page's numbers from the corpus
 git clone https://github.com/Profusion-AI/doc2toon
 cd doc2toon &amp;&amp; npm install &amp;&amp; npm run build
-node scripts/benchmark-honesty.mjs</code></pre>
+node scripts/benchmark-honesty.mjs    # the 19 internal documents
+node scripts/benchmark-external.mjs   # the 10 public documents, fetched at pinned commits</code></pre>
 
     <h2>The posture</h2>
     <p><strong>CheapAgent does not promise TOON always saves tokens. It tells you when it does</strong> &mdash; and on real agent docs, the honest answer is usually &ldquo;keep Markdown&rdquo; or &ldquo;split this first.&rdquo; The verdict is the product. If a tool in this space shows you only its wins, ask to see its corpus.</p>

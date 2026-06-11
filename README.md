@@ -4,7 +4,7 @@ CheapAgent is an early browser-side workbench for measuring and converting agent
 
 The app processes pasted or uploaded `.md` / `.txt` content in the browser, reports measured character and token deltas, surfaces the contract's coded warnings, and emits TOON output for review. Since v0.2.3 the verdict is computed by the engine's frozen Verdict v1 contract (`runVerdict` from `doc2toon@^0.3.0`) — the web renders the same decision the CLI's `--json` returns for the same input. It does not call a hosted LLM API or store document bodies server-side.
 
-Measured results across the benchmark corpus are published at [`/honesty.html`](https://cheapagent.ai/honesty.html): TOON earns a `convert` verdict on 1 of 19 test documents, and the page says so.
+Measured results across the benchmark corpora are published at [`/honesty.html`](https://cheapagent.ai/honesty.html): TOON earns a `convert` verdict on 1 of 19 internal test documents and 0 of 10 real agent docs from public repos (commit-pinned, MIT-licensed sources) — and the page says so.
 
 ## Status
 
