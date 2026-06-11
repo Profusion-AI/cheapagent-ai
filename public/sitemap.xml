@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Source default only: scripts/apply-deploy-env.mjs regenerates this file in dist/
+     on every build from the secondaryPages list. Audit the deployed sitemap, not this. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://cheapagent.ai/</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-11</lastmod>
+  </url>
+  <url>
+    <loc>https://cheapagent.ai/privacy.html</loc>
+    <lastmod>2026-06-11</lastmod>
+  </url>
+  <url>
+    <loc>https://cheapagent.ai/honesty.html</loc>
+    <lastmod>2026-06-11</lastmod>
   </url>
 </urlset>
