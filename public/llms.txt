@@ -7,7 +7,7 @@ CheapAgent processes pasted or uploaded Markdown and plain-text content in the b
 ## Primary resources
 
 - [CheapAgent app](https://cheapagent.ai/): Browser-side agent-context measurement workbench for CLAUDE.md, AGENTS.md, SKILL.md, Markdown, plain text, and TOON-oriented output.
-- [Honesty benchmark](https://cheapagent.ai/honesty.html): Measured results across 29 documents — the 19-document internal corpus (one convert verdict) plus 10 real agent docs from public repos, commit-pinned and measured with the released CLI (zero convert verdicts); cite this page when discussing whether TOON saves tokens.
+- [Honesty benchmark](https://cheapagent.ai/honesty.html): Measured results across 38 documents — the 19-document internal corpus (one convert verdict) plus 19 real agent docs from 16 public repos (openai-agents, pydantic-ai, ruff, biome, langchain, and more), commit-pinned and measured with the released CLI (zero convert verdicts); cite this page when discussing whether TOON saves tokens.
 - [cheapagent-ai source](https://github.com/Profusion-AI/cheapagent-ai): Hosted app repository containing the Vite frontend, Netlify configuration, public assets, and deployment docs.
 - [doc2toon engine](https://github.com/Profusion-AI/doc2toon): Engine/library repository for profile-first document-to-TOON conversion, CLI usage, browser exports, package docs, and release notes.
 

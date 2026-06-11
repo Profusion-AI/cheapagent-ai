@@ -2,6 +2,16 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.5 - 2026-06-11
+
+External corpus round 2 on the honesty page: the real-world denominator nearly doubles.
+
+### Changed
+
+- `/honesty.html` external section now covers **19 documents from 16 public repos** (round 2 adds openai-agents-python/-js, pydantic-ai, assistant-ui, ruff, biome, logfire, Infisical/agent-vault): **0 convert, 16 split_first, 3 keep_markdown**, deltas −2.8% to −86.9%, `safe_to_auto_apply` on none. Notable receipts: ruff's AGENTS.md at −2.8% with `duplicate_rule` ×7 (closest any real doc came to parity, still loses), openai-agents-python `duplicate_rule` ×4 at −78%.
+- New pointer-pattern paragraph: 8 pointer files recorded across the corpus (CLAUDE.md → AGENTS.md in ruff/pydantic-ai/assistant-ui/openai; logfire routed the other way; biome → CONTRIBUTING.md) — the ecosystem's leading repos have already split their agent context, which is what the corpus's dominant `split_first` verdict recommends. Skill-pack ecosystems are measured in a separate lane in the doc2toon repo and never merged into this denominator.
+- Homepage link, README, and `llms.txt` counts updated: 38 documents measured, one convert verdict.
+
 ## 0.2.4 - 2026-06-11
 
 The honesty benchmark gets an out-of-sample section: real agent docs from public repos.

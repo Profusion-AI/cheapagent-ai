@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="The CheapAgent honesty benchmark: across 19 internal test documents and 10 real agent docs from public repos, TOON earns a convert verdict exactly once. Run yours.">
+  <meta name="description" content="The CheapAgent honesty benchmark: across 19 internal test documents and 19 real agent docs from public repos, TOON earns a convert verdict exactly once. Run yours.">
   <title>CheapAgent - The honesty benchmark</title>
   <link rel="icon" href="/assets/cheapagent-logo-knockout.png" type="image/png">
   <link rel="canonical" href="https://cheapagent.ai/honesty.html">
@@ -46,7 +46,7 @@
 
   <main class="legal-wrap">
     <h1>TOON earns a convert verdict on 1 of our 19 test documents.</h1>
-    <p class="legal-updated">First honesty post &middot; 2026-06-11 &middot; external corpus (10 public-repo docs) added same day &middot; measured with doc2toon 0.3.0 &middot; every number below reproduces from the repo</p>
+    <p class="legal-updated">First honesty post &middot; 2026-06-11 &middot; external corpus: 19 public-repo docs across two same-day rounds &middot; measured with doc2toon 0.3.x &middot; every number below reproduces from the repo</p>
 
     <p>CheapAgent converts agent documents to <a href="https://github.com/toon-format/toon" target="_blank" rel="noopener">TOON</a> when that saves tokens. Most tools in this space lead with their best case. We maintain a benchmark precisely so we can't: 19 documents &mdash; realistic agent docs at real sizes, deliberately problematic ones, and small examples &mdash; run through the same verdict engine that powers this site and the CLI. In lossless mode, where the output preserves the source content by construction, the engine's own verdict is <code>convert</code> on exactly <strong>one</strong> of them.</p>
 
@@ -80,7 +80,7 @@
     </ul>
 
     <h2>External corpus: real agent docs from public repos</h2>
-    <p>One fair objection to everything above: the 19 documents are ours &mdash; original content describing fictional projects, committed in the repo, written by the team that built the verdict policy. So we ran the same released CLI against agent docs we don't control: <strong>10 documents from 8 public repos</strong> (17.8k&ndash;149k stars), each MIT-licensed or explicitly MIT for the content measured, each pinned to an exact commit SHA before measurement, with thresholds frozen in advance. We store and publish measurements with attribution &mdash; not copies of anyone's files.</p>
+    <p>One fair objection to everything above: the 19 documents are ours &mdash; original content describing fictional projects, committed in the repo, written by the team that built the verdict policy. So we ran the same released CLI against agent docs we don't control: <strong>19 documents from 16 public repos</strong> &mdash; agent frameworks, but also mainstream tooling far outside the agent bubble (ruff, biome, assistant-ui, logfire, the OpenAI Agents SDKs) &mdash; each MIT-licensed or explicitly MIT for the content measured, each pinned to an exact commit SHA before measurement, with thresholds frozen in advance and the gates pre-registered before sourcing. We store and publish measurements with attribution &mdash; not copies of anyone's files.</p>
     <table class="bench-table">
       <thead>
         <tr><th>Document</th><th>Profile</th><th class="bench-num">Lossless &Delta; chars</th><th>Verdict</th></tr>
@@ -96,9 +96,19 @@
         <tr><td>OpenHands &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;49.5%</td><td>split_first</td></tr>
         <tr><td>BerriAI/litellm &middot; CLAUDE.md</td><td>mixed</td><td class="bench-num">&minus;78.8%</td><td>split_first</td></tr>
         <tr><td>astral-sh/uv &middot; AGENTS.md</td><td>requirements</td><td class="bench-num">&minus;10.5%</td><td>split_first</td></tr>
+        <tr><td>openai/openai-agents-python &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;78.0%</td><td>split_first</td></tr>
+        <tr><td>openai/openai-agents-js &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;62.4%</td><td>split_first</td></tr>
+        <tr><td>pydantic/pydantic-ai &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;44.2%</td><td>split_first</td></tr>
+        <tr><td>assistant-ui/assistant-ui &middot; AGENTS.md</td><td>requirements</td><td class="bench-num">&minus;3.8%</td><td>keep_markdown</td></tr>
+        <tr><td>astral-sh/ruff &middot; AGENTS.md</td><td>requirements</td><td class="bench-num">&minus;2.8%</td><td>split_first</td></tr>
+        <tr><td>biomejs/biome &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;52.8%</td><td>split_first</td></tr>
+        <tr><td>pydantic/logfire &middot; CLAUDE.md</td><td>mixed</td><td class="bench-num">&minus;40.0%</td><td>keep_markdown</td></tr>
+        <tr><td>Infisical/agent-vault &middot; AGENTS.md</td><td>mixed</td><td class="bench-num">&minus;86.9%</td><td>split_first</td></tr>
+        <tr><td>Infisical/agent-vault &middot; CLAUDE.md</td><td>mixed</td><td class="bench-num">&minus;45.7%</td><td>split_first</td></tr>
       </tbody>
     </table>
-    <p><strong>0 convert. 9 split_first. 1 keep_markdown. <code>safe_to_auto_apply</code> on none.</strong> Every one of these real files would get <em>larger</em> in TOON &mdash; from 10.5% to 86.4% &mdash; and the engine says so. The dominant finding is <code>long_section</code> (these docs carry a lot per heading), and <code>duplicate_rule</code> fired on two of the most-starred repos in the set: real context bloat in famous files, which is the product's actual job. Two additional files (litellm's AGENTS.md, uv's CLAUDE.md) turned out to be pointers to another agent doc &mdash; real linking behavior worth recording, but we don't count one-line files as benchmark documents.</p>
+    <p><strong>0 convert. 16 split_first. 3 keep_markdown. <code>safe_to_auto_apply</code> on none.</strong> Every one of these real files would get <em>larger</em> in TOON &mdash; from 2.8% to 86.9% &mdash; and the engine says so. The closest any real-world doc came to parity is ruff's AGENTS.md at &minus;2.8%, where the engine flagged <code>duplicate_rule</code> seven times; openai-agents-python's fired it four times at &minus;78%. Real context bloat in famous files is the product's actual job &mdash; the verdict tells you to fix the doc, not to change its format.</p>
+    <p><strong>The pointer pattern is the quiet headline.</strong> Eight files in the corpus turned out to be pointers &mdash; a CLAUDE.md containing just <code>@AGENTS.md</code> (ruff, assistant-ui, pydantic-ai, openai-agents-python), an AGENTS.md routing to CLAUDE.md (logfire), even a CLAUDE.md pointing at CONTRIBUTING.md (biome). We record these as evidence and never count them as documents. But notice what they mean: the ecosystem's most sophisticated repos have <em>already split</em> their agent context into routed, structured pieces &mdash; which is precisely what <code>split_first</code>, the corpus's dominant verdict, recommends. The verdict isn't contrarian; it describes where the leaders already went. (Curated skill-pack ecosystems are a different population &mdash; we measure them in a separate lane in the repo and don't mix them into this denominator.)</p>
     <p>On our internal calibration corpus, TOON earned <code>convert</code> on 1 of 19 documents. On public agent-context files, the pattern is the same: CheapAgent often refuses conversion, sometimes recommends splitting, and converts only when the structure earns it.</p>
 
     <h2>Run yours</h2>
