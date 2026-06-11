@@ -1,6 +1,7 @@
 # 30-Day Sprint — Status & Analysis (Phases 0–2)
 
 **Date:** 2026-06-10 · **Plan of record:** 30-day plan v2 + phased dev plan (both outside the repos, in `C:\Users\kyleg\development\`) · **Repos:** doc2toon (engine, npm) + cheapagent-ai (web, Netlify CD).
+*(Phase numbers throughout refer to the **phased dev plan**, not the superseded `ROADMAP-30-DAY-API.md` — that roadmap's "Phase 2" hosted-API surface is demand-gated and has not been built.)*
 **Position:** the plan's day-8 engineering milestone (contract frozen + v0.3.0 released) was reached on **calendar day 1**. The content/marketing workstream has not started and is now the trailing edge.
 
 ---
@@ -16,7 +17,7 @@
 | Daily-ish teardowns + first honesty post | 4–7 | **Not started** — the reproducible inputs exist (benchmark script, calibration table); the cadence itself is the outstanding work |
 | Proof assets (card screenshot, 30-second recording, curl/TS snippets) | 1–3 | **Partially** — curl/TS snippets exist in the schema doc and README; screenshot/recording not captured |
 
-**Next on the critical path:** day-9 fork-PR permissions spike (half-day, dummy repo + fork), then the GitHub Action against the published `doc2toon@^0.3`. Off critical path: web verdict swap (days 10–12), Copy-summary hedge, content catch-up.
+**Next on the critical path:** day-9 fork-PR permissions spike (half-day, dummy repo + fork), then the GitHub Action against the published `doc2toon@^0.3`. Off critical path: v0.3 verdict-engine adoption in the web app (dependency bump from `^0.2.0` + verdict swap, days 10–12), Copy-summary, proof-card capture, content catch-up. Note the live site's *copy* is already verdict-first ("To TOONify or not?", "No fake savings") — the web gap is engine adoption and proof assets, not messaging.
 
 ---
 
@@ -31,7 +32,7 @@
 
 ### Phase 1 — the verdict engine and the freeze (doc2toon `50a09e5`)
 
-- `src/verdict.ts`: `buildVerdict`/`runVerdict`, browser-safe, exported from both entrypoints — every surface (web, CLI, MCP, serve, hosted API) calls the same policy; none re-derives a verdict.
+- `src/verdict.ts`: `buildVerdict`/`runVerdict`, browser-safe, exported from both entrypoints — so every surface (web, CLI, MCP, serve, hosted API) can call the same policy without re-deriving a verdict. The engine's own surfaces consume it as of v0.3.0; **CheapAgent web does not yet** — the app still pins `doc2toon@^0.2.0` (pre-1.0 caret does not float to 0.3), so "one engine, all surfaces" is design-true but not yet product-true until the dependency bump + web verdict swap land.
 - Refusal became representable: `BudgetRefusedError` carries the attempted lossless candidate, so `runVerdict` returns `verdict: "refused"` without parsing an error message.
 - The three sync mechanisms: per-fixture snapshots + ajv validation, estimator-parity (decisions identical under chars/4 and tokenx across the corpus), OpenAPI↔JSON-Schema deep equality.
 - **Calibration answered all 7 open questions with data** (`docs/calibration-v1.md`), and produced three engine changes:
@@ -68,6 +69,8 @@ Open question flagged (not decided): should the *engine* normalize line endings 
 ### The QC loop is earning its cost
 
 Every phase ran build→QC→fix→merge, and every QC pass found something real: Phase 0 (tarball claim, stage labels), Phase 1 (benchmark contradicting the policy it receipts, stale heading), Phase 2 (28-agent adversarial review: 14 confirmed findings, including the CI-red corpus bug, a contract gap where commander-level errors bypassed the JSON envelope, and a stale-dist false-green in the test harness — demonstrated by a neutered exit-code contract passing the full suite). The refuted findings (10) were equally useful: they confirmed in writing that the pretty-output changes, threshold semantics, and deprecation design are contract-blessed rather than accidental.
+
+The post-release QC of v0.3.0 itself (independent verification against GitHub/npm) confirmed the release sequence and the registry contents, and found three more real items, all fixed same-day: (1) this report originally over-implied web adoption of the frozen contract (clarified above — web still pins `^0.2.0`); (2) CI was green but not durable — `ci.yml` still ran node20-runtime actions, deprecated with forced migration on 2026-06-16, five days out (patched to v6 actions, matching `publish.yml`, plus a Node 20/24 matrix so CI now covers both the minimum engine and the publish runtime); (3) phase numbering could be misread against the superseded API roadmap (parenthetical added at top).
 
 ### Risk register burndown (top 5 from the dev plan)
 
