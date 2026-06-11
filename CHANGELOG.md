@@ -4,7 +4,7 @@ All notable changes to the CheapAgent app will be documented in this file.
 
 ## 0.2.3 - 2026-06-11
 
-The web verdict now comes from the frozen contract; one engine, all surfaces.
+The web verdict now comes from the frozen contract: CLI and web share the Verdict v1 engine. (Upcoming Action/MCP/serve surfaces must consume the same contract.)
 
 ### Added
 

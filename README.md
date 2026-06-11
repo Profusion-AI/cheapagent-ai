@@ -2,11 +2,13 @@
 
 CheapAgent is an early browser-side workbench for measuring and converting agent-context documents with `doc2toon`.
 
-The app processes pasted or uploaded `.md` / `.txt` content in the browser, reports measured character and token deltas, surfaces optimizer warnings, and emits TOON output for review. It does not call a hosted LLM API or store document bodies server-side.
+The app processes pasted or uploaded `.md` / `.txt` content in the browser, reports measured character and token deltas, surfaces the contract's coded warnings, and emits TOON output for review. Since v0.2.3 the verdict is computed by the engine's frozen Verdict v1 contract (`runVerdict` from `doc2toon@^0.3.0`) — the web renders the same decision the CLI's `--json` returns for the same input. It does not call a hosted LLM API or store document bodies server-side.
+
+Measured results across the benchmark corpus are published at [`/honesty.html`](https://cheapagent.ai/honesty.html): TOON earns a `convert` verdict on 1 of 19 test documents, and the page says so.
 
 ## Status
 
-- Version: `0.2.2` beta
+- Version: `0.2.3` beta
 - Deployment target: `https://cheapagent.ai/`
 - Hosting target: Netlify static site plus one Netlify Function for usage accounting
 - Indexing posture: production is indexable; staging should remain noindex through a separate Netlify site or branch-specific configuration
@@ -28,13 +30,13 @@ Site setup: enable Identity on the Netlify site (registration: open or invite-on
 CheapAgent consumes the engine through the public npm package boundary:
 
 ```js
-import { convertTextToToon } from "doc2toon/browser";
+import { runVerdict } from "doc2toon/browser";
 ```
 
-The app depends on the published registry package:
+`runVerdict` returns the frozen Verdict v1 wire object (`schemas/verdict.v1.json` in the doc2toon package); the app renders that decision and never re-derives a verdict locally. The app depends on the published registry package:
 
 ```json
-"doc2toon": "^0.2.0"
+"doc2toon": "^0.3.0"
 ```
 
 [`doc2toon`](https://www.npmjs.com/package/doc2toon) is published to npm with provenance from the engine repo's tag-triggered workflow. CheapAgent must not reach into private source paths, sibling repos, or built distribution files outside the package boundary.

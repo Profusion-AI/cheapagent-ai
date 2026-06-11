@@ -13,11 +13,11 @@
 | Decision log, realistic fixtures, honesty benchmark, contract draft (Phase 0) | 1–3 | **Done** — doc2toon `57978f4`, QC'd (2 findings fixed) |
 | Verdict engine + calibration + freeze merge (Phase 1) | 4–7 | **Done** — doc2toon `50a09e5`, QC'd (2 findings fixed); contract **FROZEN** |
 | CLI `--json` + exit-code contract → v0.3.0 (Phase 2) | 8 (ceiling 9) | **Done** — doc2toon `09e6b80` merged; v0.3.0 tagged after the post-merge CI run went green |
-| Copy-summary web hedge (`#copy-summary-button`) | 4–6, parallel | **Not started** — the day-7 "verdict card screenshot" beat no longer depends on it (the release landed first), but it remains the right web deliverable pre-swap |
-| Daily-ish teardowns + first honesty post | 4–7 | **Not started** — the reproducible inputs exist (benchmark script, calibration table); the cadence itself is the outstanding work |
-| Proof assets (card screenshot, 30-second recording, curl/TS snippets) | 1–3 | **Partially** — curl/TS snippets exist in the schema doc and README; screenshot/recording not captured |
+| Copy-summary web hedge (`#copy-summary-button`) | 4–6, parallel | **Done 2026-06-11** — shipped in v0.2.3 against the engine verdict (better than the hedge: built from VerdictV1 field names directly) |
+| Daily-ish teardowns + first honesty post | 4–7 | **First post live 2026-06-11** — cheapagent.ai/honesty.html (19 docs / 1 convert, reproducible); cadence continues with teardowns 2–3 |
+| Proof assets (card screenshot, 30-second recording, curl/TS snippets) | 1–3 | **Partially** — curl/TS snippets exist; verdict card + Copy summary are live so the screenshot is one browser visit away; recording not captured |
 
-**Next on the critical path:** day-9 fork-PR permissions spike (half-day, dummy repo + fork), then the GitHub Action against the published `doc2toon@^0.3`. Off critical path: v0.3 verdict-engine adoption in the web app (dependency bump from `^0.2.0` + verdict swap, days 10–12), Copy-summary, proof-card capture, content catch-up. Note the live site's *copy* is already verdict-first ("To TOONify or not?", "No fake savings") — the web gap is engine adoption and proof assets, not messaging.
+**Next on the critical path** (updated 2026-06-11): the day-12 GitHub Action build, exactly from the fork-PR spike's binding design (`doc2toon/docs/action-fork-pr-permissions.md`). The first dogfood PR must prove the degradation matrix: same-repo comment posts and updates; fork PR skips the comment but keeps summary/annotations/artifact/exit code; `--fail-on` turns the check red on both paths. The spike, the web verdict swap (v0.2.3, `doc2toon@^0.3.0`), Copy-summary, and the first honesty post all landed 2026-06-11 — see the addendum below. Remaining off-critical-path: marketing-grade card screenshot/recording, teardowns 2–3.
 
 ---
 
@@ -32,7 +32,7 @@
 
 ### Phase 1 — the verdict engine and the freeze (doc2toon `50a09e5`)
 
-- `src/verdict.ts`: `buildVerdict`/`runVerdict`, browser-safe, exported from both entrypoints — so every surface (web, CLI, MCP, serve, hosted API) can call the same policy without re-deriving a verdict. The engine's own surfaces consume it as of v0.3.0; **CheapAgent web does not yet** — the app still pins `doc2toon@^0.2.0` (pre-1.0 caret does not float to 0.3), so "one engine, all surfaces" is design-true but not yet product-true until the dependency bump + web verdict swap land.
+- `src/verdict.ts`: `buildVerdict`/`runVerdict`, browser-safe, exported from both entrypoints — so every surface (web, CLI, MCP, serve, hosted API) can call the same policy without re-deriving a verdict. As of v0.3.0 the CLI consumes it; as of CheapAgent v0.2.3 (2026-06-11, `doc2toon@^0.3.0`) the web does too. **Accurate scope of the claim: CLI and web now share the frozen Verdict v1 engine; the upcoming Action/MCP/serve surfaces must consume the same contract** — they are designed against it but not yet built.
 - Refusal became representable: `BudgetRefusedError` carries the attempted lossless candidate, so `runVerdict` returns `verdict: "refused"` without parsing an error message.
 - The three sync mechanisms: per-fixture snapshots + ajv validation, estimator-parity (decisions identical under chars/4 and tokenx across the corpus), OpenAPI↔JSON-Schema deep equality.
 - **Calibration answered all 7 open questions with data** (`docs/calibration-v1.md`), and produced three engine changes:
@@ -79,12 +79,27 @@ The post-release QC of v0.3.0 itself (independent verification against GitHub/np
 | 1 | Greenfield verdict policy frozen into a public contract | **Retired** — calibrated against realistic fixtures before the freeze; conservative auto-apply; constants documented tunable |
 | 2 | Tokenizer divergence flips verdicts across surfaces | **Retired** — char-based decision inputs by design; estimator-parity test proves it corpus-wide; the one nuance (`--target-tokens` is estimator-relative) is documented |
 | 3 | CLI `--json` is a refactor gating the day-12 Action | **Retired** — shipped, released, rehearsed |
-| 4 | GitHub Action fork-PR permissions | **Open** — day-9 spike is next |
+| 4 | GitHub Action fork-PR permissions | **Design decided 2026-06-11** — spike doc is binding (`pull_request` only, no secret paths, comment best-effort, gate on fork-safe channels); empirical fork checklist carried into the day-12 Action dogfood |
 | 5 | api.cheapagent.ai DNS/SSL/routing | **Open** — scheduled days 19–20 |
 
 ### Schedule risk has inverted
 
 Engineering is ~7 plan-days ahead; the gate (day 30: ≥20 intent signals / ≥2 hosted-needing payers / ≥1 blocked pilot) is fed by **content and instrumentation**, neither of which has started. The plan's own warning applies: instrumentation landing late "silently starves the day-30 decision." Being ahead on code makes the cheapest high-value moves now: start the teardown cadence (inputs are ready), capture the proof assets, and hold the days-15–18 instrumentation window even if engineering could pull it earlier.
+
+---
+
+## Addendum — 2026-06-11 (QC steps 2–5 executed)
+
+Shipped after the v0.3.0 release QC, in its recommended order. Evidence links per item; entries marked *(internal)* were verified in-session and are reproducible but have no public artifact.
+
+| Deliverable | Commit | Verification |
+|---|---|---|
+| Fork-PR spike decision doc (binding for `action.yml`) | doc2toon [`e72b8ec`](https://github.com/Profusion-AI/doc2toon/commit/e72b8ec) | CI run 19 green: <https://github.com/Profusion-AI/doc2toon/actions/runs/27340844027>; design facts quote GitHub's events/security docs; **fork behavior is design-decided from documented guarantees, not yet empirically proven** — checklist carries into Action dogfood |
+| CI v6-actions migration + Node 20/24 matrix (prior QC's hygiene item) | doc2toon [`d27f5e4`](https://github.com/Profusion-AI/doc2toon/commit/d27f5e4) | Run 18 green on both matrix legs, zero deprecation annotations: <https://github.com/Profusion-AI/doc2toon/actions/runs/27340480345> |
+| Web verdict swap to `doc2toon@^0.3.0` + Copy summary (v0.2.3) | cheapagent-ai [`b660285`](https://github.com/Profusion-AI/cheapagent-ai/commit/b660285) | Flip-free vs `docs/calibration-v1.md` web-sample rows on all 4 tabs *(internal: preview run)*; Copy-summary clipboard payload contains schema fields and no document body *(internal: clipboard interception in preview)*; deployed bundle `assets/main-DoD1CArQ.js` carries `schema_version`/`safe_to_auto_apply` and its hash equals the locally verified build (checked live) |
+| First honesty post | cheapagent-ai [`73b2de0`](https://github.com/Profusion-AI/cheapagent-ai/commit/73b2de0) | Live: <https://cheapagent.ai/honesty.html>; every number re-run from `scripts/benchmark-honesty.mjs` at 0.3.0 and cross-checked against `docs/calibration-v1.md`; sitemap carries 3 URLs (checked live) |
+
+Scope discipline on the headline claim: **CLI and web now share the frozen Verdict v1 engine.** Action, MCP, `serve`, and the hosted API are designed against the same contract but not yet built — public wording should not say "all surfaces" until they are.
 
 ---
 
