@@ -30,3 +30,7 @@ Conversations where hosted is the stated blocker to a paid pilot.
 
 Post-deploy verification exercises the real production counters; honest
 counting subtracts our own clicks. Format: `- <date> <metric_field> <count> — note`.
+
+- 2026-06-12 go_pro_clicks 1 — v0.2.6 post-deploy verification (302 + Location checked)
+- 2026-06-12 go_enterprise_clicks 1 — v0.2.6 post-deploy verification (302 + Location checked)
+- 2026-06-12 feedback_useful 1 — v0.2.6 post-deploy verification (204 checked)
