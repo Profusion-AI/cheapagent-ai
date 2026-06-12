@@ -2,6 +2,14 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.8 - 2026-06-12
+
+Security maintenance: clears both open Dependabot alerts (GHSA-gv7w-rqvm-qjhr high, GHSA-g7r4-m6w7-qqqr low — both on esbuild, development scope, fixed in 0.28.1). Build-tooling only: esbuild was vite's bundler dependency and never ships in the production bundle.
+
+### Changed
+
+- `vite` `^7.2.4` → `^8.0.16` (Dependabot's recommended path: vite 8 drops esbuild entirely, so the vulnerable package leaves the tree rather than getting pinned forward). Verified: clean build, all four pages emitted, deploy-env metadata intact, workbench + plan table exercised against the new bundle in preview, `npm audit` reports 0 vulnerabilities. Netlify's `NODE_VERSION = "20"` resolves to ≥20.19, satisfying vite 8's engine floor.
+
 ## 0.2.7 - 2026-06-12
 
 Context plans reach the web: `split_first` stops being the end of the conversation. The plan table renders doc2toon's section-level analysis (Verdict 1.1 `context_plan`) under the verdict card — every heading-bounded section measured standalone under the same frozen policy, zero re-derivation in the web app.
