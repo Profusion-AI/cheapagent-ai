@@ -73,7 +73,7 @@ claude mcp add doc2toon -- npx -y -p doc2toon-registry@npm:doc2toon@0.4.x doc2to
 npx -y -p doc2toon-registry@npm:doc2toon@0.4.x doc2toon serve --port 8787
 curl -s -X POST http://127.0.0.1:8787/v1/profile \
   -H "content-type: application/json" \
-  -d '{"text": "# My agent doc\n\n..."}'
+  -d '{"content": "# My agent doc\n\n..."}'
 
 # CLI, same verdict object
 npx doc2toon@^0.4 profile --json CLAUDE.md
@@ -89,7 +89,7 @@ npx doc2toon@^0.4 profile --json CLAUDE.md
     <h2>The contract, published first</h2>
     <ul>
       <li><a href="/openapi.yaml">OpenAPI 3.1 spec</a> &mdash; <code>POST /v1/profile</code>, <code>/v1/convert</code>, <code>/v1/validate</code>, <code>/v1/plan</code> (implemented in <code>doc2toon serve</code> today); <code>/v1/estimate</code> and <code>/v1/batch</code> are spec-only, marked <code>x-status: planned</code>. Pinned copy of the canonical spec in the doc2toon package (<code>x-source: doc2toon@0.4.2</code>); the running local server serves its own at <code>GET /v1/openapi.yaml</code>.</li>
-      <li><a href="/schemas/verdict.v1.json">Verdict v1 JSON Schema</a> &mdash; the canonical decision object, byte-identical to the schema shipped in the npm tarball. This URL is the schema's own <code>$id</code>.</li>
+      <li><a href="/schemas/verdict.v1.json">Verdict v1 JSON Schema</a> &mdash; the same canonical decision object shipped in the npm tarball. This URL is the schema's own <code>$id</code>.</li>
     </ul>
     <p>A third party could implement a compatible server from those two files alone. That is the definition of done we held the contract to.</p>
 
