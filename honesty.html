@@ -46,7 +46,7 @@
 
   <main class="legal-wrap">
     <h1>TOON earns a convert verdict on 1 of our 19 test documents.</h1>
-    <p class="legal-updated">First honesty post &middot; 2026-06-11 &middot; external corpus: 19 public-repo docs across two same-day rounds &middot; measured with doc2toon 0.3.x &middot; every number below reproduces from the repo</p>
+    <p class="legal-updated">First honesty post &middot; 2026-06-11 &middot; external corpus: 19 public-repo docs across two same-day rounds &middot; measured with doc2toon 0.3.x &middot; context plans added 2026-06-12, measured with doc2toon 0.4.2 &middot; every number below reproduces from the repo</p>
 
     <p>CheapAgent converts agent documents to <a href="https://github.com/toon-format/toon" target="_blank" rel="noopener">TOON</a> when that saves tokens. Most tools in this space lead with their best case. We maintain a benchmark precisely so we can't: 19 documents &mdash; realistic agent docs at real sizes, deliberately problematic ones, and small examples &mdash; run through the same verdict engine that powers this site and the CLI. In lossless mode, where the output preserves the source content by construction, the engine's own verdict is <code>convert</code> on exactly <strong>one</strong> of them.</p>
 
@@ -111,10 +111,28 @@
     <p><strong>The pointer pattern is the quiet headline.</strong> Eight files in the corpus turned out to be pointers &mdash; a CLAUDE.md containing just <code>@AGENTS.md</code> (ruff, assistant-ui, pydantic-ai, openai-agents-python), an AGENTS.md routing to CLAUDE.md (logfire), even a CLAUDE.md pointing at CONTRIBUTING.md (biome). We record these as evidence and never count them as documents. But notice what they mean: the ecosystem's most sophisticated repos have <em>already split</em> their agent context into routed, structured pieces &mdash; which is precisely what <code>split_first</code>, the corpus's dominant verdict, recommends. The verdict isn't contrarian; it describes where the leaders already went. (Curated skill-pack ecosystems are a different population &mdash; we measure them in a separate lane in the repo and don't mix them into this denominator.)</p>
     <p>On our internal calibration corpus, TOON earned <code>convert</code> on 1 of 19 documents. On public agent-context files, the pattern is the same: CheapAgent often refuses conversion, sometimes recommends splitting, and converts only when the structure earns it.</p>
 
+    <h2>Context plans: finds the parts worth converting, refuses the rest</h2>
+    <p>Everything above measures whole documents, and whole documents usually lose. But the losing docs are not empty of structure &mdash; the tables and uniform blocks are <em>inside</em> them. So doc2toon 0.4 added <strong>context plans</strong>: every heading-bounded section measured standalone as if it were its own document &mdash; same frozen policy, same 5% band, zero new tunable constants &mdash; with the splice overhead of stitching a hybrid counted, never hidden, and reassembly mechanically verified. The metric was pre-registered before any plan code ran against the corpus; the planning hypothesis it tested (&ldquo;maybe a third of documents have an actionable plan&rdquo;) was refuted by the data. We publish what fell out:</p>
+    <table class="bench-table">
+      <thead>
+        <tr><th>Corpus</th><th class="bench-num">Plan-positive</th><th class="bench-num">Median net, plan-positive</th><th class="bench-num">Docs with &ge;1 converting section</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Internal (19 docs)</td><td class="bench-num">1/19</td><td class="bench-num">+20.9%</td><td class="bench-num">4</td></tr>
+        <tr><td>External, public repos (19 docs)</td><td class="bench-num">1/19</td><td class="bench-num">+6.8%</td><td class="bench-num">3</td></tr>
+        <tr class="win"><td>Combined</td><td class="bench-num">2/38</td><td class="bench-num">+13.8%</td><td class="bench-num">7</td></tr>
+      </tbody>
+    </table>
+    <p>The external plan-positive document is <strong>langchain-ai/langchainjs &middot; AGENTS.md</strong> &mdash; and it is the whole product thesis in one file. Whole-document TOON makes it <strong>42.8% larger</strong>; its row in the table above honestly says <code>keep_markdown</code>. The plan finds the two package tables inside it (&ldquo;Key Packages&rdquo; +49.5%, &ldquo;Internal Packages&rdquo; +52.0%), converts exactly those, keeps the other 48 sections byte-identical, and nets <strong>+6.8%</strong> across the whole document with plan-level <code>safe_to_auto_apply: true</code> &mdash; the first real-world document in the corpus where the tool has a positive, auto-applicable recommendation. Five more documents have at least one converting section but net only 0.2&ndash;0.9% &mdash; below the 5% band, so the plan&rsquo;s honest answer for them stays &ldquo;keep the whole document.&rdquo; Reassembly verified on all 38; the whole-document denominators above are unchanged by any of this.</p>
+    <p>The plan now renders in the <a href="/#demo">workbench</a> under every multi-section verdict, with the hybrid (converted sections as fenced TOON, everything else byte-identical) available for download. The CLI surface is <code>doc2toon plan</code>.</p>
+
     <h2>Run yours</h2>
     <p>Your documents are not our corpus. The same verdict, three ways:</p>
     <pre><code># Verdict v1 JSON for your own doc (Node 20+)
-npx doc2toon@^0.3 profile --json CLAUDE.md
+npx doc2toon@^0.4 profile --json CLAUDE.md
+
+# Section-level context plan, with the hybrid written on request
+npx doc2toon@^0.4 plan AGENTS.md
 
 # Or paste it into the workbench - it never leaves your browser
 # https://cheapagent.ai/
@@ -123,7 +141,8 @@ npx doc2toon@^0.3 profile --json CLAUDE.md
 git clone https://github.com/Profusion-AI/doc2toon
 cd doc2toon &amp;&amp; npm install &amp;&amp; npm run build
 node scripts/benchmark-honesty.mjs    # the 19 internal documents
-node scripts/benchmark-external.mjs   # the 10 public documents, fetched at pinned commits</code></pre>
+node scripts/benchmark-external.mjs   # the 19 public documents, fetched at pinned commits
+node scripts/benchmark-plans.mjs      # the actionable-plan rate across all 38</code></pre>
 
     <h2>The posture</h2>
     <p><strong>CheapAgent does not promise TOON always saves tokens. It tells you when it does</strong> &mdash; and on real agent docs, the honest answer is usually &ldquo;keep Markdown&rdquo; or &ldquo;split this first.&rdquo; The verdict is the product. If a tool in this space shows you only its wins, ask to see its corpus.</p>

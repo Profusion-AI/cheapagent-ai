@@ -1,4 +1,4 @@
-import { runVerdict } from "doc2toon/browser";
+import { runVerdict, buildContextPlan } from "doc2toon/browser";
 import { initAuth, onAuthChange, currentUser, openSignIn, signOut, authToken } from "./auth.js";
 import { initConsentBanner, functionalStorageAllowed } from "./consent.js";
 
@@ -50,6 +50,12 @@ const usefulButton = document.querySelector("#useful-button");
 const notUsefulButton = document.querySelector("#not-useful-button");
 const toonName = document.querySelector("#toon-name");
 
+const planBlock = document.querySelector("#plan-block");
+const planRows = document.querySelector("#plan-rows");
+const planNet = document.querySelector("#plan-net");
+const copyPlanButton = document.querySelector("#copy-plan-button");
+const downloadHybridButton = document.querySelector("#download-hybrid-button");
+
 const beforeBar = document.querySelector("#ba-before");
 const afterBar = document.querySelector("#ba-after");
 const beforeNumber = document.querySelector("#ba-before-n");
@@ -59,6 +65,9 @@ let activeMode = "claude";
 let latestToon = "";
 let latestVerdict = null;
 let latestFilename = "cheapagent-output.toon";
+let latestPlan = null;
+let latestHybrid = "";
+let latestHybridFilename = "document.hybrid.md";
 let usingSample = false;
 let dailyQuota = null;
 
@@ -132,24 +141,28 @@ const modeConfig = {
     sourceName: "CLAUDE.md",
     mode: "record",
     filename: "claude.optimized.toon",
+    hybridFilename: "claude.hybrid.md",
   },
   agents: {
     label: "AGENTS.md optimization",
     sourceName: "AGENTS.md",
     mode: "record",
     filename: "agents.optimized.toon",
+    hybridFilename: "agents.hybrid.md",
   },
   skill: {
     label: "SKILL.md optimization",
     sourceName: "SKILL.md",
     mode: "record",
     filename: "skill.optimized.toon",
+    hybridFilename: "skill.hybrid.md",
   },
   toon: {
     label: "Document to TOON",
     sourceName: "definitions.md",
     mode: "lossless",
     filename: "document.toon",
+    hybridFilename: "document.hybrid.md",
   },
 };
 
@@ -409,9 +422,17 @@ function resetOutput(message = "Run a check to see whether TOON helps this input
   latestToon = "";
   latestVerdict = null;
   latestFilename = selectedConfig().filename;
+  latestPlan = null;
+  latestHybrid = "";
+  latestHybridFilename = selectedConfig().hybridFilename;
+  planBlock.hidden = true;
+  planRows.innerHTML = "";
+  planNet.textContent = "";
   copyButton.disabled = true;
   copySummaryButton.disabled = true;
   downloadButton.disabled = true;
+  copyPlanButton.disabled = true;
+  downloadHybridButton.disabled = true;
   usefulButton.disabled = true;
   notUsefulButton.disabled = true;
   beforeBar.style.width = "0%";
@@ -483,8 +504,64 @@ function renderWarnings(verdict) {
   warningsList.innerHTML = cards.join("");
 }
 
-function renderResult(verdict, config) {
+// Renders the context plan (Verdict 1.1 context_plan) under the verdict card. The plan comes
+// from doc2toon's buildContextPlan — every heading-bounded section measured standalone under
+// the unchanged frozen policy, lossless-only, splice overhead counted. The web renders the
+// engine's plan and never re-derives it. A single-section document degenerates to the
+// whole-doc verdict, so the table would only repeat the card — the block stays hidden.
+function renderPlan(planResult) {
+  if (!planResult || planResult.plan.sections.length < 2) {
+    latestPlan = null;
+    latestHybrid = "";
+    planBlock.hidden = true;
+    planRows.innerHTML = "";
+    planNet.textContent = "";
+    copyPlanButton.disabled = true;
+    downloadHybridButton.disabled = true;
+    return false;
+  }
+
+  const plan = planResult.plan;
+  const rows = plan.sections.map((section) => {
+    const name =
+      section.kind === "frontmatter" ? "(frontmatter)" : section.heading ?? "(preamble)";
+    const lines = `lines ${section.range.line_start}-${section.range.line_end}`;
+    const measured = section.measured_chars;
+    const delta = measured
+      ? `${measured.savings_pct > 0 ? "+" : ""}${measured.savings_pct.toFixed(1)}%`
+      : "not measured";
+    return `
+      <tr class="${section.action === "convert" ? "convert" : ""}">
+        <td>${escapeHtml(name)} <small class="plan-lines">${escapeHtml(lines)}</small></td>
+        <td>${escapeHtml(section.profile ?? "—")}</td>
+        <td class="plan-num">${escapeHtml(delta)}</td>
+        <td>${escapeHtml(section.verdict ?? "—")}</td>
+        <td class="plan-action" data-action="${escapeHtml(section.action)}">${escapeHtml(section.action)}</td>
+      </tr>
+    `;
+  });
+  planRows.innerHTML = rows.join("");
+
+  const converted = plan.sections.filter((section) => section.action === "convert").length;
+  planNet.textContent = [
+    `sections: ${plan.sections.length} (${converted} convert, ${plan.sections.length - converted} keep)`,
+    `net (splice overhead included): ${formatNumber(plan.net.source)} → ${formatNumber(plan.net.hybrid)} chars (${plan.net.savings_pct > 0 ? "+" : ""}${plan.net.savings_pct.toFixed(1)}%)`,
+    `recommend_hybrid: ${plan.recommend_hybrid}`,
+    `reassembly_verified: ${plan.reassembly_verified}`,
+    `safe_to_auto_apply: ${plan.safe_to_auto_apply}`,
+  ].join(" · ");
+
+  latestPlan = planResult.verdict;
+  latestHybrid = converted > 0 ? planResult.hybrid : "";
+  copyPlanButton.disabled = false;
+  downloadHybridButton.disabled = converted === 0;
+  planBlock.hidden = false;
+  return true;
+}
+
+function renderResult(verdict, config, planResult) {
   const presentation = verdictPresentation[verdict.verdict] ?? verdictPresentation.review;
+  const planShown = renderPlan(planResult);
   const chars = verdict.measured_chars;
   const tokens = verdict.token_estimates;
   const larger = tokens.savings < 0;
@@ -505,7 +582,10 @@ function renderResult(verdict, config) {
   afterNumber.textContent = `${formatNumber(tokens.toon)} tok`;
 
   verdictTitle.textContent = presentation.title;
-  verdictBody.textContent = presentation.body;
+  verdictBody.textContent =
+    planShown && verdict.verdict === "split_first"
+      ? `${presentation.body} …and here's the plan: every section below, measured standalone.`
+      : presentation.body;
   resultSummary.textContent = `${presentation.title} ${presentation.body}`;
   setStatus(presentation.badge, presentation.state);
   renderWarnings(verdict);
@@ -513,6 +593,7 @@ function renderResult(verdict, config) {
   latestVerdict = verdict;
   latestToon = verdict.toon_candidate ?? "";
   latestFilename = config.filename;
+  latestHybridFilename = config.hybridFilename;
   toonName.textContent = config.filename;
   output.textContent = latestToon;
   copyButton.disabled = !latestToon;
@@ -565,13 +646,17 @@ async function runConversion() {
   window.setTimeout(() => {
     try {
       measuringText.textContent = "Encoding TOON...";
+      const flavor = activeMode === "toon" ? detectFlavor(text) : "markdown";
       const verdict = runVerdict(text, {
-        flavor: activeMode === "toon" ? detectFlavor(text) : "markdown",
+        flavor,
         sourceType: "paste",
         mode: config.mode,
         delimiter: "auto",
       });
-      renderResult(verdict, config);
+      // The plan is its own lossless-only surface (context-plan-design.md §2), independent
+      // of the tab's conversion mode — same as the CLI's `plan` vs `convert --mode`.
+      const planResult = buildContextPlan(text, { flavor, sourceType: "paste" });
+      renderResult(verdict, config, planResult);
     } catch (error) {
       resetOutput("Review before copying.");
       setStatus("error", "error");
@@ -673,6 +758,67 @@ async function copySummary() {
   if (copied) {
     recordResultAction("copy_summary");
   }
+}
+
+// A shareable rendering of the context plan built from the schema's own field names, in the
+// Copy-summary style. It includes the document's own section headings (the plan's evidence
+// rows) but never section bodies and never TOON output.
+function buildPlanText(planVerdict) {
+  const plan = planVerdict.context_plan;
+  const converted = plan.sections.filter((section) => section.action === "convert").length;
+  const sectionLines = plan.sections.map((section) => {
+    const name =
+      section.kind === "frontmatter" ? "(frontmatter)" : section.heading ?? "(preamble)";
+    const measured = section.measured_chars
+      ? `savings_pct: ${section.measured_chars.savings_pct.toFixed(1)}`
+      : "not measured";
+    const verdictPart = section.verdict ? `, verdict: ${section.verdict}` : "";
+    return `- ${section.action} "${name}" (${section.profile ?? section.kind}, ${measured}${verdictPart})`;
+  });
+  return [
+    "CheapAgent context plan — convert the parts that win",
+    `document verdict: ${planVerdict.verdict}`,
+    `sections: ${plan.sections.length} (${converted} convert, ${plan.sections.length - converted} keep)`,
+    ...sectionLines,
+    `net (splice overhead included): source ${plan.net.source} → hybrid ${plan.net.hybrid} chars (savings_pct: ${plan.net.savings_pct.toFixed(1)})`,
+    `recommend_hybrid: ${plan.recommend_hybrid}`,
+    `reassembly_verified: ${plan.reassembly_verified}`,
+    `safe_to_auto_apply: ${plan.safe_to_auto_apply}`,
+    "Run yours: https://cheapagent.ai",
+  ].join("\n");
+}
+
+async function copyPlan() {
+  if (!latestPlan?.context_plan) {
+    return;
+  }
+  const copied = await copyText(buildPlanText(latestPlan));
+  setNotice(
+    copied
+      ? "Copied plan. Section headings are included; section text and TOON output are not."
+      : "Clipboard access is unavailable. Select the TOON output manually.",
+  );
+}
+
+function downloadHybrid() {
+  if (!latestHybrid || !latestPlan?.context_plan) {
+    return;
+  }
+  const blob = new Blob([latestHybrid], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = latestHybridFilename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  setNotice(
+    latestPlan.context_plan.recommend_hybrid
+      ? `Downloaded ${latestHybridFilename}: converted sections as fenced TOON, everything else byte-identical.`
+      : `Downloaded ${latestHybridFilename}. Note: the measured net is below the 5% band, so the plan does not recommend it — the plan informs, you decide.`,
+  );
+  recordResultAction("download");
 }
 
 function downloadOutput() {
@@ -827,6 +973,8 @@ resetButton.addEventListener("click", clearInput);
 copyButton.addEventListener("click", copyOutput);
 copySummaryButton.addEventListener("click", copySummary);
 downloadButton.addEventListener("click", downloadOutput);
+copyPlanButton.addEventListener("click", copyPlan);
+downloadHybridButton.addEventListener("click", downloadHybrid);
 usefulButton.addEventListener("click", () => sendFeedback(true));
 notUsefulButton.addEventListener("click", () => sendFeedback(false));
 themeToggle.addEventListener("click", () => {

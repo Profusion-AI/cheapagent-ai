@@ -2,6 +2,25 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.7 - 2026-06-12
+
+Context plans reach the web: `split_first` stops being the end of the conversation. The plan table renders doc2toon's section-level analysis (Verdict 1.1 `context_plan`) under the verdict card — every heading-bounded section measured standalone under the same frozen policy, zero re-derivation in the web app.
+
+### Added
+
+- Context plan table (`#plan-block`) under the verdict card for multi-section documents: per-section profile, measured Δ chars, standalone verdict, and convert/keep action, with section line ranges; the net line reports section counts, net savings with splice overhead included, `recommend_hybrid`, `reassembly_verified`, and plan-level `safe_to_auto_apply`. Computed by `buildContextPlan` from `doc2toon/browser` — the same engine behind `doc2toon plan`. Plans are lossless-only by design, independent of the tab's conversion mode. Single-section documents show no plan (the plan would only repeat the whole-doc verdict).
+- "Copy plan" (`#copy-plan-button`): a paste-anywhere plan summary built from the `context_plan` field names, one evidence row per section. It includes the document's own section headings, never section bodies or TOON output.
+- "Download hybrid .md" (`#download-hybrid-button`): the assembled hybrid — converted sections as fenced TOON blocks, kept sections byte-identical (`reassembly_verified` is the engine's own mechanical check). Enabled when at least one section converts; when the net is below the 5% band the notice says the plan recommends against it — the plan informs, the user decides. Hybrid downloads count toward the existing disclosed `downloads` aggregate (signed-in only, enum value, never content); "Copy plan" is deliberately uncounted in this release.
+- `/honesty.html` context-plan section: the pre-registered actionable-plan rate — **2 of 38** documents plan-positive (internal 1/19 median +20.9%, external 1/19 median +6.8%, 7 of 38 with ≥1 converting section, reassembly verified on all 38; re-verified at released doc2toon 0.4.2). Flagship: langchain-ai/langchainjs AGENTS.md — whole-doc `keep_markdown` at −42.8%, plan converts its two package tables (+49.5%, +52.0%) for net +6.8% with plan-level `safe_to_auto_apply: true`. The whole-document denominators are unchanged. "Run yours" now includes `npx doc2toon@^0.4 plan AGENTS.md` and `scripts/benchmark-plans.mjs` (all commands executed verbatim against the registry package before publishing).
+- `AGENTS.md` — agent guidance for this repo (build/verify commands, contract surfaces, privacy constraints), and `.github/workflows/context-check.yml` — the doc2toon context-check Action (second-repo dogfood, `Profusion-AI/doc2toon@action-v1`).
+- `split_first` verdict card now ends with "…and here's the plan" when a plan is shown.
+
+### Changed
+
+- `doc2toon` dependency `^0.3.0` → `^0.4.2` (plans need `buildContextPlan` from the 0.4 browser export; the verdict surface is unchanged — Verdict 1.0 stays byte-stable per the freeze rules).
+- `llms.txt`: plan DOM contract (`#plan-block`, `#copy-plan-button`, `#download-hybrid-button`) documented additively; honesty-benchmark description carries the plan metric; programmatic guidance adds `doc2toon plan --json` / `buildContextPlan`.
+- No new network requests and no new counters: the plan computes entirely in the browser; anonymous use still sends nothing.
+
 ## 0.2.6 - 2026-06-12
 
 Phase 4.5 of the 30-day plan: the hosted-API early-access page and the day-30 gate instrumentation, deployed soft (live and indexable, linked from nowhere on the site yet — promotion is days 24–30). Every captured signal is an explicit, disclosed user action; nothing is collected passively. Privacy disclosures below ship in the same release as the features they describe, per privacy.html's own change-disclosure promise.
