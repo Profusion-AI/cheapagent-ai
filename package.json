@@ -16,7 +16,7 @@
     "doc2toon": "^0.4.2"
   },
   "devDependencies": {
-    "vite": "^7.2.4"
+    "vite": "^8.0.16"
   },
   "engines": {
     "node": ">=20"
