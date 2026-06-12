@@ -14,6 +14,16 @@ const MAX_WRITE_ATTEMPTS = 4;
 // document text, user ids, or per-user history.
 const METRICS_PREFIX = "metrics/daily/";
 const METRICS_MAX_ATTEMPTS = 2;
+
+// Signed-in copy/download deltas (v0.2.6, plan-v2 tracked metrics): the
+// client reports which result action was clicked — an enum value only, no
+// characters, no content, no quota mutation. Maps client event names to
+// aggregate metric fields.
+const EVENT_FIELDS = {
+  copy_output: "copies_output",
+  copy_summary: "copies_summary",
+  download: "downloads",
+};
 const METRICS_TIMEOUT_MS = 1000;
 const METRICS_RETENTION_DAYS = 400;
 
@@ -114,11 +124,25 @@ export const handler = async (event, context) => {
 
   let chars = null;
   if (event.httpMethod === "POST") {
+    let body;
     try {
-      chars = JSON.parse(event.body ?? "{}").chars;
+      body = JSON.parse(event.body ?? "{}");
     } catch {
       return respond(400, { error: "Request body must be JSON." });
     }
+    // Result-action delta: counted in the daily aggregate and answered
+    // immediately — it never touches the quota record below.
+    if (body.event !== undefined) {
+      const field = EVENT_FIELDS[body.event];
+      if (!field) {
+        return respond(400, {
+          error: "event must be one of copy_output, copy_summary, download.",
+        });
+      }
+      await recordDailyMetrics(store, today, { [field]: 1 });
+      return respond(200, { recorded: true });
+    }
+    chars = body.chars;
     if (!Number.isInteger(chars) || chars < 1 || chars > DAILY_CHAR_LIMIT) {
       return respond(400, {
         error: `chars must be an integer between 1 and ${DAILY_CHAR_LIMIT}.`,

@@ -2025,6 +2025,12 @@ button {
   padding: 14px 16px;
 }
 
+.feedback-group {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
 .privacy {
   color: var(--color-text-subtle);
   flex: 1 1 360px;

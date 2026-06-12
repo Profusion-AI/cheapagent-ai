@@ -5,6 +5,7 @@ import { initConsentBanner, functionalStorageAllowed } from "./consent.js";
 const ANON_CHAR_LIMIT = 1000;
 const DAILY_CHAR_LIMIT = 15000;
 const USAGE_ENDPOINT = "/.netlify/functions/usage";
+const FEEDBACK_ENDPOINT = "/api/feedback";
 
 const root = document.documentElement;
 const nav = document.querySelector("#nav");
@@ -45,6 +46,8 @@ const output = document.querySelector("#output");
 const copyButton = document.querySelector("#copy-button");
 const copySummaryButton = document.querySelector("#copy-summary-button");
 const downloadButton = document.querySelector("#download-button");
+const usefulButton = document.querySelector("#useful-button");
+const notUsefulButton = document.querySelector("#not-useful-button");
 const toonName = document.querySelector("#toon-name");
 
 const beforeBar = document.querySelector("#ba-before");
@@ -409,6 +412,8 @@ function resetOutput(message = "Run a check to see whether TOON helps this input
   copyButton.disabled = true;
   copySummaryButton.disabled = true;
   downloadButton.disabled = true;
+  usefulButton.disabled = true;
+  notUsefulButton.disabled = true;
   beforeBar.style.width = "0%";
   afterBar.style.width = "0%";
   beforeNumber.textContent = "0 tok";
@@ -513,6 +518,8 @@ function renderResult(verdict, config) {
   copyButton.disabled = !latestToon;
   copySummaryButton.disabled = false;
   downloadButton.disabled = !latestToon;
+  usefulButton.disabled = false;
+  notUsefulButton.disabled = false;
   setNotice(
     chars.savings > 0
       ? `Measured ${formatNumber(chars.source)} characters locally.`
@@ -580,12 +587,56 @@ async function runConversion() {
   }, 120);
 }
 
+// Signed-in-only result-action deltas (plan-v2 tracked metrics): reports
+// which action was clicked — an enum value, never content. Fire-and-forget:
+// the click's real work never waits on it, and anonymous use stays
+// request-free because authToken() resolves null without a session.
+async function recordResultAction(eventName) {
+  try {
+    const token = await authToken();
+    if (!token) {
+      return;
+    }
+    await fetch(USAGE_ENDPOINT, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ event: eventName }),
+    });
+  } catch {
+    // Counting is best-effort by design; the action already succeeded.
+  }
+}
+
+// One explicit click, one anonymous bit. Buttons disable after voting so a
+// result can be voted on once; a new run re-enables them.
+async function sendFeedback(useful) {
+  usefulButton.disabled = true;
+  notUsefulButton.disabled = true;
+  setNotice(
+    useful
+      ? "Thanks — counted as one anonymous “useful”. Nothing else was sent."
+      : "Thanks — counted as one anonymous “not useful”. Nothing else was sent.",
+  );
+  try {
+    await fetch(FEEDBACK_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ useful }),
+    });
+  } catch {
+    // Best-effort: an uncounted vote is an undercount, never a retry loop.
+  }
+}
+
 async function copyOutput() {
   if (!latestToon) {
     return;
   }
   const copied = await copyText(latestToon);
   setNotice(copied ? "Copied output." : "Clipboard access is unavailable. Select the TOON output manually.");
+  if (copied) {
+    recordResultAction("copy_output");
+  }
 }
 
 // A shareable, paste-anywhere rendering of VerdictV1 built from the schema's own field names.
@@ -619,6 +670,9 @@ async function copySummary() {
       ? "Copied verdict summary. No document text is included."
       : "Clipboard access is unavailable. Select the TOON output manually.",
   );
+  if (copied) {
+    recordResultAction("copy_summary");
+  }
 }
 
 function downloadOutput() {
@@ -635,6 +689,7 @@ function downloadOutput() {
   link.remove();
   URL.revokeObjectURL(url);
   setNotice(`Downloaded ${latestFilename}.`);
+  recordResultAction("download");
 }
 
 async function copyText(text) {
@@ -772,6 +827,8 @@ resetButton.addEventListener("click", clearInput);
 copyButton.addEventListener("click", copyOutput);
 copySummaryButton.addEventListener("click", copySummary);
 downloadButton.addEventListener("click", downloadOutput);
+usefulButton.addEventListener("click", () => sendFeedback(true));
+notUsefulButton.addEventListener("click", () => sendFeedback(false));
 themeToggle.addEventListener("click", () => {
   setTheme(root.dataset.theme === "dark" ? "light" : "dark");
 });

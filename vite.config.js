@@ -8,6 +8,7 @@ export default defineConfig({
         main: fileURLToPath(new URL("./index.html", import.meta.url)),
         privacy: fileURLToPath(new URL("./privacy.html", import.meta.url)),
         honesty: fileURLToPath(new URL("./honesty.html", import.meta.url)),
+        api: fileURLToPath(new URL("./api.html", import.meta.url)),
       },
     },
   },

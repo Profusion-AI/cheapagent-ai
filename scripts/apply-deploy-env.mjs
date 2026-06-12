@@ -19,7 +19,7 @@ const noindex =
 
 const indexPath = join(distDir, "index.html");
 // Pages beyond index get env metadata, robots handling, and a canonical + sitemap entry.
-const secondaryPages = ["privacy.html", "honesty.html"];
+const secondaryPages = ["privacy.html", "honesty.html", "api.html"];
 const robotsPath = join(distDir, "robots.txt");
 const sitemapPath = join(distDir, "sitemap.xml");
 const headersPath = join(distDir, "_headers");

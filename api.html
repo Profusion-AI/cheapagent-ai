@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="green">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The CheapAgent Context API: an API agents call before they waste context. Local-first today via MCP, CLI, and localhost HTTP — hosted early access, contract published first.">
+  <title>CheapAgent - Hosted Context API early access</title>
+  <link rel="icon" href="/assets/cheapagent-logo-knockout.png" type="image/png">
+  <link rel="canonical" href="https://cheapagent.ai/api.html">
+  <link rel="stylesheet" href="/src/tokens.css">
+  <link rel="stylesheet" href="/src/styles.css">
+  <script type="module" src="/src/privacy-page.js"></script>
+  <style>
+    .legal-wrap { max-width: 760px; margin: 0 auto; padding: 110px 20px 80px; }
+    .legal-wrap h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+    .legal-wrap .legal-updated { color: var(--color-text-subtle); font-size: 0.85rem; }
+    .legal-wrap h2 { margin-top: 2.2rem; font-size: 1.2rem; }
+    .legal-wrap h3 { margin-top: 1.6rem; font-size: 1rem; }
+    .legal-wrap p, .legal-wrap li { color: var(--color-text-muted); line-height: 1.65; }
+    .legal-wrap ul { padding-left: 1.2rem; }
+    .legal-wrap strong { color: var(--color-text); }
+    .legal-wrap code { color: var(--color-text); background: color-mix(in srgb, var(--color-text) 8%, transparent); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
+    .legal-wrap pre { background: color-mix(in srgb, var(--color-text) 6%, transparent); border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); border-radius: 8px; padding: 14px 16px; overflow-x: auto; }
+    .legal-wrap pre code { background: none; padding: 0; }
+    .offer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.2rem 0; }
+    @media (max-width: 640px) { .offer-grid { grid-template-columns: 1fr; } }
+    .offer-card { border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent); border-radius: 10px; padding: 18px; }
+    .offer-card h3 { margin-top: 0; }
+    .offer-card .btn { margin-top: 0.8rem; }
+    .waitlist-form { border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent); border-radius: 10px; padding: 20px; margin: 1.2rem 0; }
+    .waitlist-form label { display: block; color: var(--color-text); font-size: 0.9rem; margin: 0.9rem 0 0.3rem; }
+    .waitlist-form input[type="email"], .waitlist-form select, .waitlist-form textarea {
+      width: 100%; box-sizing: border-box; padding: 0.55em 0.7em; border-radius: 6px;
+      border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent);
+      background: color-mix(in srgb, var(--color-text) 5%, transparent); color: var(--color-text); font: inherit;
+    }
+    .waitlist-form textarea { min-height: 4.5em; resize: vertical; }
+    .waitlist-form .form-note { font-size: 0.8rem; color: var(--color-text-subtle); margin-top: 0.8rem; }
+    .waitlist-form button[type="submit"] { margin-top: 1rem; }
+    .waitlist-thanks { display: none; border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent); border-radius: 10px; padding: 16px 20px; margin: 1.2rem 0; color: var(--color-text); }
+    [data-joined] .waitlist-thanks { display: block; }
+    .hidden-field { display: none; }
+  </style>
+</head>
+<body>
+  <div class="bg-field" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <nav class="nav scrolled" id="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/" aria-label="CheapAgent home">
+        <img class="brand-logo" src="/assets/cheapagent-logo-knockout.png" alt="">
+        <span class="wm">cheap<b>agent</b></span>
+      </a>
+      <div class="nav-right">
+        <a class="btn btn-line btn-sm" href="/">Back to workbench</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="legal-wrap">
+    <h1>An API agents call before they waste context.</h1>
+    <p class="legal-updated">Hosted API early access &middot; contract published, demand-gated &middot; updated 2026-06-12</p>
+
+    <p>The CheapAgent Context API answers one question before an agent loads a document: <strong>is converting it to TOON worth it?</strong> Every response is a structured verdict &mdash; a decision with measurements, never prose. The verdict policy is frozen, versioned, and identical on every surface that emits it.</p>
+
+    <h2>You can call it locally, today</h2>
+    <p>The full <code>/v1</code> contract already runs on your machine, where <strong>document bodies never leave your machine</strong>. No waitlist for any of this:</p>
+    <pre><code># MCP server (Claude Code, Cowork, any MCP client)
+claude mcp add doc2toon -- npx -y -p doc2toon-registry@npm:doc2toon@0.4.x doc2toon-mcp
+
+# Localhost HTTP — the same /v1 endpoints this page's spec describes
+npx -y -p doc2toon-registry@npm:doc2toon@0.4.x doc2toon serve --port 8787
+curl -s -X POST http://127.0.0.1:8787/v1/profile \
+  -H "content-type: application/json" \
+  -d '{"text": "# My agent doc\n\n..."}'
+
+# CLI, same verdict object
+npx doc2toon@^0.4 profile --json CLAUDE.md
+
+# CI — comment on PRs when agent docs bloat
+# uses: Profusion-AI/doc2toon@action-v1</code></pre>
+    <p>Tools: <code>profile</code>, <code>convert</code>, <code>validate</code>, and <code>plan</code> &mdash; per-section context plans that say which parts of a mixed document independently earn conversion, under the same frozen policy.</p>
+
+    <h2>The hosted API: same contract, explicit trust boundary</h2>
+    <p><code>https://api.cheapagent.ai</code> will expose the <em>identical</em> contract for the places local-first can't reach: CI at scale without per-runner installs, fleets of agents that can't ship a Node runtime, batch checks across many repos. Sending a document to the hosted API is an explicit opt-in &mdash; it is the one CheapAgent surface where a document body leaves your machine, and it is framed that way on purpose. The hosted posture is drafted and published before launch: <strong>no document body storage by default; report history only if you opt in</strong>.</p>
+    <p>We are deliberately not launching hosted until enough people need it. The contract is built and frozen; the spec below is the real one; early-access demand decides the launch. That honesty is cheaper for you than a half-run service.</p>
+
+    <h2>The contract, published first</h2>
+    <ul>
+      <li><a href="/openapi.yaml">OpenAPI 3.1 spec</a> &mdash; <code>POST /v1/profile</code>, <code>/v1/convert</code>, <code>/v1/validate</code>, <code>/v1/plan</code> (implemented in <code>doc2toon serve</code> today); <code>/v1/estimate</code> and <code>/v1/batch</code> are spec-only, marked <code>x-status: planned</code>. Pinned copy of the canonical spec in the doc2toon package (<code>x-source: doc2toon@0.4.2</code>); the running local server serves its own at <code>GET /v1/openapi.yaml</code>.</li>
+      <li><a href="/schemas/verdict.v1.json">Verdict v1 JSON Schema</a> &mdash; the canonical decision object, byte-identical to the schema shipped in the npm tarball. This URL is the schema's own <code>$id</code>.</li>
+    </ul>
+    <p>A third party could implement a compatible server from those two files alone. That is the definition of done we held the contract to.</p>
+
+    <h2 id="offers">Early access</h2>
+    <div class="offer-grid">
+      <div class="offer-card">
+        <h3>Pro early access</h3>
+        <p>Larger browser allowance, GitHub Action beta support, CI templates, and first hosted API keys when the beta opens. Saved and exportable reports are coming &mdash; listed honestly as coming, not promised.</p>
+        <a class="btn btn-accent btn-sm" href="/go/pro">I want Pro</a>
+      </div>
+      <div class="offer-card">
+        <h3>Enterprise design partner</h3>
+        <p>Private repo workflow, context-budget policy definition, no-document-storage-by-default posture, hosted API evaluation. Framed honestly as a design partnership, not month-one enterprise theater.</p>
+        <a class="btn btn-line btn-sm" href="/go/enterprise">Talk design partnership</a>
+      </div>
+    </div>
+    <p class="form-note" style="font-size:0.8rem; color: var(--color-text-subtle);">Clicking either button counts one anonymous interest click on our side (a server-side number, no cookie, no identity) and brings you to the waitlist below.</p>
+
+    <h2 id="waitlist">Join the hosted API waitlist</h2>
+    <div class="waitlist-thanks" id="waitlist-thanks" role="status">
+      <strong>You're on the list.</strong> We'll email you when hosted early access opens &mdash; and only about that.
+    </div>
+    <form class="waitlist-form" id="waitlist-form" name="api-early-access" method="POST" action="/api.html?joined=1#waitlist" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="api-early-access">
+      <input type="hidden" name="intent" id="intent-field" value="">
+      <p class="hidden-field">
+        <label>Don't fill this out if you're human: <input name="bot-field"></label>
+      </p>
+      <label for="wl-email">Email</label>
+      <input type="email" id="wl-email" name="email" required autocomplete="email" placeholder="you@company.com">
+      <label for="wl-need">What makes hosted necessary for you? (optional)</label>
+      <select id="wl-need" name="hosted_need">
+        <option value="">Just curious for now</option>
+        <option value="ci-at-scale">CI at scale (many repos / runners)</option>
+        <option value="private-repos">Private repos / policy reasons</option>
+        <option value="no-local-install">Can't install locally where my agents run</option>
+        <option value="batch">Batch checks over many documents</option>
+        <option value="other">Something else (say below)</option>
+      </select>
+      <label for="wl-note">What would you point it at? (optional)</label>
+      <textarea id="wl-note" name="note" placeholder="e.g. 40 repos with AGENTS.md files, nightly CI"></textarea>
+      <button class="btn btn-accent btn-sm" type="submit">Join the waitlist</button>
+      <p class="form-note">Submitting stores your email and your answers with our forms provider (Netlify) so we can email you about hosted early access &mdash; nothing else. No document content is asked for or wanted. Deletion on request, like everything we store: see the <a href="/privacy.html">privacy page</a>.</p>
+    </form>
+
+    <h2>Prefer to just ask?</h2>
+    <p>If you have a concrete need &mdash; a team, a fleet, a deadline &mdash; skip the form: <a href="mailto:kyle.greenwell@gmail.com?subject=Hosted%20API%20early%20access">email us with the subject &ldquo;Hosted API early access&rdquo;</a>. Labeled subject lines are how we count direct asks, so keeping the subject helps us take the demand signal seriously.</p>
+
+    <h2>The posture, restated</h2>
+    <p>In the browser workbench, the CLI, MCP, CI, and <code>doc2toon serve</code>, your documents never leave your machine. The hosted API is the explicit, opt-in exception &mdash; and it launches when demand justifies running it properly, not before. <strong>CheapAgent does not promise TOON always saves tokens. It tells you when it does.</strong> The <a href="/honesty.html">honesty benchmark</a> is where we publish the losses.</p>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-bottom">
+        <span>Different output. Same task. Less waste.</span>
+        <span>Independent project built on TOON. Not affiliated with the TOON project.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    // Page-local, submission-free wiring only: prefill the hidden intent field
+    // from /go/* redirects and show the post-submit thanks note. No tracking.
+    const params = new URLSearchParams(location.search);
+    const intent = params.get("intent");
+    if (intent === "pro" || intent === "enterprise") {
+      document.querySelector("#intent-field").value = intent;
+      const need = document.querySelector("#wl-need");
+      if (intent === "enterprise" && !need.value) need.value = "private-repos";
+    }
+    if (params.get("joined") === "1") {
+      document.body.setAttribute("data-joined", "");
+      document.querySelector("#waitlist-form").hidden = true;
+    }
+  </script>
+</body>
+</html>

@@ -2,7 +2,26 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
-## 0.2.5 - 2026-06-11
+## 0.2.6 - 2026-06-12
+
+Phase 4.5 of the 30-day plan: the hosted-API early-access page and the day-30 gate instrumentation, deployed soft (live and indexable, linked from nowhere on the site yet — promotion is days 24–30). Every captured signal is an explicit, disclosed user action; nothing is collected passively. Privacy disclosures below ship in the same release as the features they describe, per privacy.html's own change-disclosure promise.
+
+### Added
+
+- `/api.html` — hosted Context API early access: the localhost-today/hosted-later story, the published contract (`/openapi.yaml`, OpenAPI 3.1, vendored pinned copy with `x-source: doc2toon@0.4.2`; `/schemas/verdict.v1.json`, byte-identical to the npm tarball's canonical schema so its `$id` URL now resolves), Pro/design-partner early-access framing (Amendment 3 copy: saved/exportable reports listed as "coming," not promised), a Netlify Forms waitlist (`api-early-access`: email + optional hosted-need + optional note + intent), and a labeled mailto for countable direct asks.
+- `/go/pro` and `/go/enterprise` (`netlify/functions/go.mjs`) — pricing-intent capture: one explicit click increments a server-side daily aggregate counter (no cookie, no identity, no body), 302 onward to the waitlist with intent preselected. Targets flip to Stripe links in Phase 6; the counting does not change.
+- Useful/not-useful button pair (`#useful-button` / `#not-useful-button`) next to the result actions — sends a single anonymous boolean to `POST /api/feedback` (`netlify/functions/feedback.mjs`), counted in the same daily aggregate; one vote per run, buttons disable after voting.
+- Signed-in copy/download deltas: `usage.mjs` accepts `{event: copy_output | copy_summary | download}` and counts `copies_output` / `copies_summary` / `downloads` in the daily aggregate — an enum value, never content; fire-and-forget from the client; anonymous use still sends nothing on these actions.
+- `netlify/functions/lib/metrics.mjs` — the usage.mjs daily-aggregate pattern (production-gated, time-boxed, CAS, undercount-never-double-apply) shared by the two new modern functions.
+- `scripts/gate-readout.mjs` — prints the three day-30 gate numbers mechanically (Netlify Forms waitlist count + Blobs `/go` click totals + `docs/gate-tally.md` manual tallies), evaluates the any-two-of-three gate, subtracts recorded verification clicks, and reminds the operator to append Netlify Analytics numbers by hand. `docs/gate-tally.md` is the hand-counted side (direct asks, paying-needing-hosted, blocked team conversations, verification deductions).
+- `docs/analytics-decision.md` — the Phase 4.5 anonymous-activation decision, recorded: adopt Netlify Analytics (server-log based, no client JS, no cookies — the one promise-compatible option) before launch week; enablement is a dashboard step, and the fallback position is written down if it doesn't happen.
+- `docs/stripe-privacy-section-draft.md` — the Stripe third-party privacy section, drafted now, flipped live only with the Phase 6 payment links.
+
+### Changed (privacy, disclosed same-release)
+
+- privacy.html (last-updated 2026-06-12): the site-wide daily totals section now lists the new counted actions (signed-in copy/download clicks, feedback votes, API-page interest clicks); a new "API early-access page" section discloses exactly what the waitlist form stores (the one place an email is stored outside sign-up; deletion on request), what a `/go` click counts, and the labeled email channel; the anonymous-use section now states the complete, exhaustive list of anonymous-capable requests — all explicit submissions, never passive; Third parties notes Netlify Forms storage.
+- `llms.txt`: api.html added to primary resources; the DOM contract documents the feedback pair (with guidance that agents should not vote on a user's behalf unless the user expressed the judgment); the anonymous-use claim restated with the exhaustive explicit-submission list.
+- `vite.config.js` + `scripts/apply-deploy-env.mjs`: api.html is a fourth rollup input and a secondary page (env meta, canonical, sitemap entry handled by the existing mechanism).
 
 External corpus round 2 on the honesty page: the real-world denominator nearly doubles.
 

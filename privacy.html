@@ -38,7 +38,7 @@
 
   <main class="legal-wrap">
     <h1>Privacy, in plain language</h1>
-    <p class="legal-updated">Last updated 2026-06-10 &middot; applies to CheapAgent v0.2.2 beta</p>
+    <p class="legal-updated">Last updated 2026-06-12 &middot; applies to CheapAgent v0.2.6 beta</p>
 
     <h2>Your documents stay in your browser</h2>
     <p>When you paste or upload a document, the conversion runs locally in your browser using the open-source <a href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">doc2toon</a> engine. The text of your document is <strong>never uploaded, never stored, and never sent to a server or an LLM API</strong>. This is true whether you are signed in or not.</p>
@@ -53,7 +53,8 @@
     <p>That is the whole account record. <strong>No document bodies, no document titles, no conversion history.</strong> When your browser checks your remaining allowance, it sends only a character count &mdash; a number &mdash; not the text itself. Counters from previous days are discarded from your account record; we keep only today's totals there. The only thing kept day over day is the site-wide aggregate described next.</p>
 
     <h2>Site-wide daily totals</h2>
-    <p>To understand whether CheapAgent is being used at all, we keep one aggregate counter record per day for the whole site: how many allowance checks, conversions, first-time-today accounts, and debited characters happened that day, as plain totals. These totals contain <strong>no user ids, no emails, and nothing that links a number to an account</strong>. They cover signed-in activity only &mdash; anonymous use still makes no network requests &mdash; and daily totals older than about 400 days are deleted.</p>
+    <p>To understand whether CheapAgent is being used at all, we keep one aggregate counter record per day for the whole site: how many allowance checks, conversions, first-time-today accounts, and debited characters happened that day, as plain totals. Since 2026-06-12 the same daily record also counts, as plain totals: copy and download clicks by signed-in users (which button, never what was copied), useful/not-useful feedback votes, and clicks on the two interest links on the <a href="/api.html">API early-access page</a>. These totals contain <strong>no user ids, no emails, and nothing that links a number to an account</strong>. Daily totals older than about 400 days are deleted.</p>
+    <p>Every number in that record comes from an explicit action &mdash; running a check while signed in, clicking a button that says what it does. Nothing is counted from merely visiting or reading. Quota counters and copy/download counts cover signed-in activity only; feedback votes and interest-link clicks count the click itself and carry no identity either way.</p>
     <p>One honest caveat: on a very low-traffic day, a daily total could in practice reflect a single account's activity. See deletion requests below for how we handle that.</p>
 
     <h2>What we never store</h2>
@@ -64,7 +65,15 @@
     </ul>
 
     <h2>Anonymous use</h2>
-    <p>You can use CheapAgent without an account. Anonymous use makes no network requests with your content or its size; the 1,000-character limit is applied in your browser.</p>
+    <p>You can use CheapAgent without an account. Anonymous use makes no network requests with your content or its size; the 1,000-character limit is applied in your browser. The only network requests anonymous use can make are ones you explicitly trigger by pressing something that says it submits: the useful/not-useful buttons (one anonymous bit), the waitlist form on the API early-access page (the fields you typed), or a <code>/go</code> interest link (one anonymous click count). Nothing about your document travels with any of them, and nothing is ever sent passively.</p>
+
+    <h2>The API early-access page</h2>
+    <p>The <a href="/api.html">hosted API early-access page</a> has three things that talk to a server, all opt-in:</p>
+    <ul>
+      <li><strong>The waitlist form.</strong> Submitting it stores what you typed &mdash; your email, and optionally why hosted matters to you &mdash; with Netlify Forms, so we can email you about hosted API early access. That is the only use. It is the one place on this site that stores an email address outside of account sign-up. Deletion on request, same as accounts.</li>
+      <li><strong>The two interest links</strong> (<code>/go/pro</code>, <code>/go/enterprise</code>). Clicking one increments a server-side daily total &mdash; a number, with no cookie, no identity, and no request body &mdash; and forwards you to the waitlist. We use the totals to decide whether to launch the hosted API.</li>
+      <li><strong>The labeled email address</strong>, if you choose to write to us directly.</li>
+    </ul>
 
     <h2>Cookies and local storage</h2>
     <p>CheapAgent sets <strong>no advertising or analytics cookies</strong>. The only cookies it sets are essential first-party sign-in cookies (<code>nf_jwt</code> and <code>nf_refresh</code>), set by Netlify Identity to keep you signed in &mdash; only if you sign in, and cleared when you sign out. Browser local storage is used for at most three things:</p>
@@ -76,7 +85,7 @@
     <p>You can <a href="#" data-consent-prefs>change your storage choice</a> at any time; the same link is in the footer of the main page as &ldquo;Cookie preferences&rdquo;.</p>
 
     <h2>Third parties</h2>
-    <p>CheapAgent is hosted on <a href="https://www.netlify.com/" target="_blank" rel="noopener">Netlify</a>, and sign-in is provided by Netlify Identity. Netlify processes requests as our hosting provider; see <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">Netlify's privacy policy</a> for how they handle infrastructure-level data such as IP addresses in server logs.</p>
+    <p>CheapAgent is hosted on <a href="https://www.netlify.com/" target="_blank" rel="noopener">Netlify</a>, and sign-in is provided by Netlify Identity. Waitlist form submissions are stored by Netlify Forms &mdash; the same provider, same policy. Netlify processes requests as our hosting provider; see <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">Netlify's privacy policy</a> for how they handle infrastructure-level data such as IP addresses in server logs.</p>
 
     <h2>No billing in v0.2</h2>
     <p>The v0.2 beta has no paid tier and collects no payment information.</p>
