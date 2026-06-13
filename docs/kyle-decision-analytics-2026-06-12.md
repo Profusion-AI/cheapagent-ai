@@ -70,10 +70,32 @@ color ("how many launch-week visitors did the page convert?").
 ## What ships only when Web Analytics is actually enabled
 
 Per privacy.html's binding change-disclosure rule, the same release that turns
-it on adds: the drafted Third-parties sentence ("We use Netlify Analytics, which
-reads Netlify's server logs; it adds no cookies and no scripts to the page."),
-a dated CHANGELOG entry, and a line superseding the 0.2.1 "promises forbid
-anonymous usage measurement" claim. Not before the toggle.
+it on adds: a present-tense Third-parties disclosure (Netlify Web Analytics,
+derived from Netlify's server logs, no script, no cookies), the scoped
+reconciliation of the "nothing counted from merely visiting / nothing captured
+passively" lines (privacy.html + llms.txt), a dated CHANGELOG entry that
+refines the 0.2.1 "promises forbid anonymous usage measurement" claim, and the
+version stamp.
+
+### Gap-free enablement runbook (closes the QC caveat: disclosure must not lag the toggle)
+
+The disclosure commit is **pre-built and waiting** as a reviewed branch /
+draft PR (`analytics-disclosure-ready`) so it deploys in one merge — no copy is
+written under time pressure at toggle-time, and there is no window where
+analytics runs before the page admits it. Execute in this order:
+
+1. **In the Netlify dashboard, check first:** if enabling Web Analytics offers
+   it on the current (Free) plan, proceed. If it instead prompts a migration to
+   credit-based plans, **STOP** — that is irreversible; reconsider before
+   clicking through.
+2. **Merge the pre-built disclosure PR to `main`** and wait for the Netlify
+   deploy (~1–2 min). Confirm the disclosure is live on cheapagent.ai/privacy.html.
+3. **Only then flip the Web Analytics toggle.** Disclosure-live-before-capture
+   is the safe ordering: a page that briefly over-discloses (says analytics is
+   on seconds before it is) harms no one; a page that under-discloses while
+   collecting is the breach. Never toggle first.
+4. If plans change and you don't enable, the PR sits harmlessly unmerged
+   forever — nothing live changes until step 2.
 
 ## If the brand call is ever revisited (the Option-B path, not chosen)
 
