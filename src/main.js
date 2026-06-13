@@ -26,6 +26,7 @@ const quotaMeta = document.querySelector("#quota-meta");
 const srcName = document.querySelector("#src-name");
 const charCount = document.querySelector("#char-count");
 const inputNotice = document.querySelector("#input-notice");
+const limitCta = document.querySelector("#limit-cta");
 const resultSummary = document.querySelector("#result-summary");
 const statusBadge = document.querySelector("#status-badge");
 const resultEmpty = document.querySelector("#result-empty");
@@ -325,7 +326,14 @@ function updateModeButtons() {
 }
 
 function charLimit() {
-  return currentUser() ? DAILY_CHAR_LIMIT : ANON_CHAR_LIMIT;
+  // Signed-in: honor the account's server-side allowance once the quota is
+  // known — a hand-issued Pro/partner entitlement raises dailyQuota.limit above
+  // the default, so "larger browser allowance" is real and not just a label.
+  // Fall back to the free constant before the first quota response arrives.
+  if (currentUser()) {
+    return dailyQuota?.limit ?? DAILY_CHAR_LIMIT;
+  }
+  return ANON_CHAR_LIMIT;
 }
 
 function updateCharCount() {
@@ -343,12 +351,15 @@ function enforceLimit(text) {
 function renderQuota() {
   if (!currentUser()) {
     quotaMeta.hidden = true;
-    return;
+  } else {
+    quotaMeta.hidden = false;
+    quotaMeta.textContent = dailyQuota
+      ? `${formatNumber(dailyQuota.remaining)} of ${formatNumber(dailyQuota.limit)} chars left today`
+      : `up to ${formatNumber(DAILY_CHAR_LIMIT)} chars per day`;
   }
-  quotaMeta.hidden = false;
-  quotaMeta.textContent = dailyQuota
-    ? `${formatNumber(dailyQuota.remaining)} of ${formatNumber(dailyQuota.limit)} chars left today`
-    : `up to ${formatNumber(DAILY_CHAR_LIMIT)} chars per day`;
+  // Keep the "/ N chars" denominator in sync with the effective allowance once
+  // a Pro entitlement lifts dailyQuota.limit above the default.
+  updateCharCount();
 }
 
 function renderAuth(user) {
@@ -612,6 +623,8 @@ function renderResult(verdict, config, planResult) {
 async function runConversion() {
   const text = sourceInput.value.trimEnd();
   updateCharCount();
+  // Reset the limit CTA each run; only the exhausted-allowance branch re-shows it.
+  if (limitCta) limitCta.hidden = true;
 
   if (!text.trim()) {
     resetOutput("No text found. Upload a .md or .txt file, or paste text directly.");
@@ -624,7 +637,10 @@ async function runConversion() {
     if (!debit.ok && (debit.reason === "quota")) {
       resetOutput("Today's signed-in allowance is used up.");
       setStatus("limit", "error");
-      setNotice(`Daily limit reached: ${formatNumber(debit.remaining ?? 0)} of ${formatNumber(DAILY_CHAR_LIMIT)} characters left today. The allowance resets at midnight UTC.`);
+      setNotice(`Daily limit reached: ${formatNumber(debit.remaining ?? 0)} of ${formatNumber(dailyQuota?.limit ?? DAILY_CHAR_LIMIT)} characters left today. The allowance resets at midnight UTC.`);
+      // Pain-moment CTA (Phase 6 promotion): only shown when a signed-in account
+      // actually exhausts its allowance — never a generic banner.
+      if (limitCta) limitCta.hidden = false;
       return;
     }
     if (!debit.ok && text.length > ANON_CHAR_LIMIT) {

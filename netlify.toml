@@ -8,6 +8,14 @@
 [functions]
   directory = "netlify/functions"
 
+# Hosted Context API namespace. The edge function intercepts /v1/* on every host
+# the site serves (apex today, api.cheapagent.ai once the alias + SSL land) and
+# answers the pre-gate 401/501 stub, so /v1/* never falls through to the SPA.
+# See netlify/edge-functions/api-v1.mjs and docs/deployment-topology.md.
+[[edge_functions]]
+  path = "/v1/*"
+  function = "api-v1"
+
 [context.branch-deploy.environment]
   VITE_CHEAPAGENT_ENV = "staging"
   VITE_CHEAPAGENT_NOINDEX = "true"

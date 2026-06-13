@@ -4,6 +4,13 @@ import { connectLambda, getStore } from "@netlify/blobs";
 // character count to debit; document bodies never reach this function.
 const DAILY_CHAR_LIMIT = 15000;
 
+// Absolute upper bound the request validation accepts before the per-account
+// limit is read and enforced in the debit loop. A Pro/partner account may carry
+// a per-record override (limits.daily_chars, written by hand via
+// scripts/set-entitlement.mjs after a Stripe receipt) above the free default;
+// this caps how high any single debit can claim, independent of the override.
+const MAX_DAILY_CHAR_LIMIT = 1_000_000;
+
 // Debits run a compare-and-swap retry loop; this caps how many times a
 // request re-reads after losing a write race to a concurrent conversion.
 const MAX_WRITE_ATTEMPTS = 4;
@@ -38,6 +45,18 @@ function respond(statusCode, body) {
 
 function utcDate() {
   return new Date().toISOString().slice(0, 10);
+}
+
+// The account's effective daily character allowance: an optional per-record
+// override (limits.daily_chars) falling back to the free-tier constant. This is
+// entitlement *lookup*, not billing — the override is set by hand for Pro and
+// design-partner accounts; there is no webhook and no Stripe API in this
+// codebase (a standing kill-criterion). Absent or invalid override → free limit.
+function effectiveCharLimit(profile) {
+  const override = profile?.limits?.daily_chars;
+  return Number.isInteger(override) && override > 0
+    ? Math.min(override, MAX_DAILY_CHAR_LIMIT)
+    : DAILY_CHAR_LIMIT;
 }
 
 // Metrics are best-effort by design: they may never fail, slow, or
@@ -143,9 +162,11 @@ export const handler = async (event, context) => {
       return respond(200, { recorded: true });
     }
     chars = body.chars;
-    if (!Number.isInteger(chars) || chars < 1 || chars > DAILY_CHAR_LIMIT) {
+    // Sanity bound only; the per-account limit is enforced by the debit loop's
+    // remaining check below, so a Pro account's larger debit is not rejected here.
+    if (!Number.isInteger(chars) || chars < 1 || chars > MAX_DAILY_CHAR_LIMIT) {
       return respond(400, {
-        error: `chars must be an integer between 1 and ${DAILY_CHAR_LIMIT}.`,
+        error: `chars must be an integer between 1 and ${MAX_DAILY_CHAR_LIMIT}.`,
       });
     }
   }
@@ -167,13 +188,16 @@ export const handler = async (event, context) => {
     };
     profile.email = user.email ?? profile.email;
     profile.last_seen_at = nowIso;
+    // Per-account allowance: the override (if any) is carried on the record and
+    // written back untouched by this loop, so entitlement survives every debit.
+    const effectiveLimit = effectiveCharLimit(profile);
 
     // Only the current day's counters matter; dropping older dates keeps the
     // stored metadata minimal instead of accumulating a usage history.
     const day = profile.daily?.[today] ?? { chars_used: 0, conversions: 0 };
     profile.daily = { [today]: day };
 
-    const remaining = Math.max(0, DAILY_CHAR_LIMIT - day.chars_used);
+    const remaining = Math.max(0, effectiveLimit - day.chars_used);
     const overLimit = chars !== null && chars > remaining;
     const firstConversionToday = day.conversions === 0;
     if (chars !== null && !overLimit) {
@@ -197,7 +221,7 @@ export const handler = async (event, context) => {
         await recordDailyMetrics(store, today, { quota_checks: 1 });
         return respond(200, {
           date: today,
-          limit: DAILY_CHAR_LIMIT,
+          limit: effectiveLimit,
           used: day.chars_used,
           remaining,
         });
@@ -213,7 +237,7 @@ export const handler = async (event, context) => {
       });
       return respond(200, {
         date: today,
-        limit: DAILY_CHAR_LIMIT,
+        limit: effectiveLimit,
         used: day.chars_used,
         remaining,
       });
@@ -229,7 +253,7 @@ export const handler = async (event, context) => {
       return respond(200, {
         allowed: false,
         date: today,
-        limit: DAILY_CHAR_LIMIT,
+        limit: effectiveLimit,
         used: day.chars_used,
         remaining,
       });
@@ -246,9 +270,9 @@ export const handler = async (event, context) => {
     return respond(200, {
       allowed: true,
       date: today,
-      limit: DAILY_CHAR_LIMIT,
+      limit: effectiveLimit,
       used: day.chars_used,
-      remaining: DAILY_CHAR_LIMIT - day.chars_used,
+      remaining: effectiveLimit - day.chars_used,
     });
   }
 

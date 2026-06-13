@@ -1,6 +1,6 @@
 {
   "name": "cheapagent-ai",
-  "version": "0.2.10",
+  "version": "0.2.12",
   "private": true,
   "description": "Browser-side context efficiency workbench for measuring and converting agent documents with doc2toon.",
   "type": "module",

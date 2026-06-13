@@ -2987,3 +2987,26 @@ button {
 .auth-fineprint a {
   color: var(--color-primary);
 }
+
+/* Pain-moment CTA under the workbench toolbar — revealed by main.js only when a
+   signed-in account exhausts its daily allowance (never a generic banner). */
+.limit-cta {
+  display: block;
+  margin-top: 14px;
+  padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--color-command) 45%, var(--color-border-strong));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--color-command) 9%, transparent);
+  color: var(--color-text);
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.limit-cta:hover {
+  background: color-mix(in srgb, var(--color-command) 16%, transparent);
+}
+
+.limit-cta[hidden] {
+  display: none;
+}

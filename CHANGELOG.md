@@ -2,6 +2,30 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.12 - 2026-06-13
+
+Phase 5 + Phase 6 of the 30-day plan: the hosted API answers a real stub over its own routing, the early-access page is promoted into the site, the paid offers go from counted clicks to actual destinations, and a hand-issued Pro entitlement now raises a real account's browser allowance. Kill-criteria held: payment LINKS only, no billing infrastructure (no webhook, no Stripe API), no self-serve key issuance, `/v1/estimate` + `/v1/batch` stay spec-only. (Version 0.2.11 is reserved for the pending analytics-disclosure PR on `analytics-disclosure-ready`; recommended merge order is that PR first, then this.)
+
+### Added
+
+- **`/v1/*` hosted Context API stub** (`netlify/edge-functions/api-v1.mjs`, bound via `[[edge_functions]]` in `netlify.toml`) — the Phase 5 risk-#5 spike finalized as the Phase 6 stub. A dependency-free Deno edge function intercepts `/v1/*` ahead of the SPA history fallback and answers the pre-gate contract: missing/malformed key → `401`, key-shaped header (`^ca_(live|test)_[A-Za-z0-9]{32,}$`, matching `docs/key-issuance-design.md`) → `501 {error, docs_url, early_access_url}`; `/v1/estimate` and `/v1/batch` are surfaced as spec-only. It executes nothing, reads no Blobs, and counts nothing — it proves DNS/SSL/routing and that the API-key header contract will not break real beta keys later. Host-agnostic by design, so it answers on `cheapagent.ai/v1/*` today and on `api.cheapagent.ai/v1/*` the moment the alias + SSL land, with no code change (the plan's default same-site-alias and apex-fallback realized at once). `docs/deployment-topology.md` gains the subdomain section + the operator runbook.
+- **Manual Pro/partner entitlement fulfillment** (`scripts/set-entitlement.mjs`) — the by-hand step run after a Stripe receipt arrives: sets `plan` + `limits.daily_chars` on a `users/{sub}` record (shape per `docs/key-issuance-design.md`; identify by `--sub` or `--email`, `--clear`/`--dry-run` supported). Entitlement lookup, not billing — no webhook, no Stripe API, no self-serve.
+- **Pain-moment CTA** under the workbench toolbar (`#limit-cta`), revealed only when a signed-in account exhausts its daily allowance — never a generic banner or newsletter.
+
+### Changed
+
+- **`usage.mjs` honors a per-account allowance.** The daily limit is now `limits.daily_chars` from the user's record when present, falling back to the 15,000-char free constant; all response `limit`/`remaining` fields and the debit enforcement use the effective limit. Free accounts are unaffected. The request-validation ceiling is raised to an absolute sanity bound so a Pro account's larger debit reaches the per-account check instead of being rejected up front. Additive only — new optional fields, no schema break; the entitlement override is carried untouched across debit writes.
+- **The web workbench delivers the larger allowance.** `src/main.js` `charLimit()` follows the server's `dailyQuota.limit` for signed-in users (falling back to the constant before the first quota response), so a Pro account can paste and convert up to its raised allowance instead of being truncated at the free limit; the char-count denominator and the daily-limit notice track the effective limit.
+- **The paid offers reach real destinations.** `netlify/functions/go.mjs` forwards `/go/pro` to the operator-set `CHEAPAGENT_PRO_CHECKOUT_URL` (Stripe payment link) and `/go/enterprise` to `CHEAPAGENT_ENTERPRISE_FORM_URL` (design-partner application), https-validated, falling back to the waitlist with the intent preselected when unset. The counted aggregate (`go_pro_clicks`/`go_enterprise_clicks`) is unchanged — exactly the flip the v0.2.6 disclosure promised. `api.html` offer copy now states Pro is paid (Stripe checkout, manual fulfillment) and describes the forward honestly.
+- **`api.html` is promoted into the site** (Phase 6): a "Hosted API" link in the primary nav and the footer Product column. CTAs are attached to the limit-hit pain moment only — no generic newsletter form.
+- **`llms.txt`:** notes that the hosted `/v1/*` endpoints currently answer a `401`/`501` early-access stub (no keys issued yet) and that agents should use the local MCP server, `doc2toon serve`, or the CLI today.
+
+### Changed (privacy, disclosed same-release)
+
+- **privacy.html: "No billing in v0.2" replaced with a Payments section** — Pro early access is paid via Stripe payment links; Stripe processes payment details under its own policy; CheapAgent never sees card details; we receive and keep only the receipt (email + product) to turn on the allowance by hand; there is no billing code on the site. Disclosed the same release the payment-link plumbing went live, per the page's change-disclosure promise.
+- privacy.html: the `/go/*` interest-link description now names the forward destinations (Stripe checkout for Pro, the design-partner application for Enterprise, or the waitlist when unset); the counted-click disclosure is unchanged.
+- privacy.html version line → v0.2.12 (2026-06-13).
+
 ## 0.2.10 - 2026-06-12
 
 Analytics decision confirmed (Kyle), and a third inert extension disclosed. Docs + one privacy.html accuracy edit; no product code changes.
