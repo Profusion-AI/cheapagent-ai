@@ -2,6 +2,21 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.11 - 2026-06-13 — DO NOT MERGE until Netlify Web Analytics is being enabled
+
+**This entry ships with the analytics toggle, not before** (branch `analytics-disclosure-ready`). Merging deploys the "analytics is on" disclosure; per the gap-free runbook in `docs/kyle-decision-analytics-2026-06-12.md`, merge + verify-live FIRST, then flip the dashboard toggle.
+
+### Changed (privacy, disclosed same-release)
+
+- privacy.html Third parties now discloses **Netlify Web Analytics** in present tense: anonymous page-view counts are derived by Netlify from its own server/CDN logs — no script added to the page, no cookies, works without JavaScript, cannot see document content — the same infrastructure-level log processing already disclosed, surfaced as aggregate counts. The two team-installed analytics extensions (Baseline, Simple Analytics) remain disabled and capturing nothing.
+- privacy.html "Site-wide daily totals": the "nothing is counted from merely visiting" sentence is scoped to *that first-party record* and cross-references the separate, server-log-derived Netlify counts — so the two statements are explicitly non-contradictory rather than implicitly in tension.
+- `llms.txt`: the "nothing captured passively" line is split into first-party code (no analytics script, nothing passive) vs. host-derived aggregate page-view counts (Netlify Web Analytics, server logs, no script/cookies).
+- `AGENTS.md`: analytics posture noted as enabled (server-side).
+
+### Note — refines a prior entry
+
+- The 0.2.1 line "Anonymous usage measurement … excluded by design; the privacy promises forbid them" is **refined, not reversed**: the promises forbid *client-side / first-party passive page telemetry* (analytics scripts, beacons, cookies). Aggregate visit counts derived by the host from its own server logs — no page script, no cookie, nothing the page sends — are infrastructure-level processing already disclosed under Third parties, and are compatible with the promises. Client-side analytics (e.g. the Simple Analytics beacon) remains excluded by design.
+
 ## 0.2.10 - 2026-06-12
 
 Analytics decision confirmed (Kyle), and a third inert extension disclosed. Docs + one privacy.html accuracy edit; no product code changes.
