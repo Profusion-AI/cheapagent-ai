@@ -7,6 +7,7 @@ Guidance for agents working in this repository (the cheapagent.ai web app). The 
 - Netlify deploys `main` on every merge. There is no staging site: a merged commit is production within minutes.
 - Verify before merging, not after: `npm run build`, then `npm run preview` (port 4174) and exercise the workbench.
 - `npm run build` also runs `scripts/apply-deploy-env.mjs` (env meta, canonical URLs, sitemap). Don't hand-edit its outputs in `dist/`.
+- Netlify extensions in play (state verified 2026-06-12; details in `docs/analytics-decision.md`): **Prerender is ACTIVE** — crawler/AI user-agents get a cached pre-rendered page copy (`X-Prerendered: true`, up to ~3 days stale), so verify production with a browser UA. **Baseline (analytics) is installed at team level but NOT capturing** (no `BASELINE_ANALYTICS` env var = its edge function is absent from deploys); enabling it requires same-release privacy.html/llms.txt/CHANGELOG work — see the decision doc's amendment before touching it.
 
 ## Binding constraints
 

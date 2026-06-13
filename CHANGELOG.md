@@ -2,6 +2,26 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.9 - 2026-06-12
+
+Disclosure and reconciliation release, after QC flagged that the analytics extension installed on the Netlify team is **Baseline (by Google)** — not the Netlify Analytics the Phase 4.5 decision adopted. No product code changes.
+
+### Verified (state, not code)
+
+- **Baseline captures nothing on this site.** Its edge function is injected at build time only when a `BASELINE_ANALYTICS` env var exists (confirmed in the extension's source); the site has no such var (in an env listing that demonstrably shows extension-created vars), re-checked after the current production deploy was published. Installed at team level, never enabled for site capture, zero visitor data ever collected. Conclusion adversarially reviewed; the one-minute dashboard re-check is documented in `docs/analytics-decision.md`.
+- **The Netlify Prerender extension has been ACTIVE since 2026-06-02** (predates this changelog's history; never previously disclosed or documented). Verified live: crawler/AI user-agents receive a cached, post-JS pre-rendered copy of pages (`X-Prerendered: true`); browser user-agents receive the byte-identical static files. It inspects the user-agent of each request to classify crawlers and stores **our own rendered pages** in Netlify Blobs (~3-day cache) — no visitor data is collected or stored by it.
+
+### Changed (privacy, disclosed same-release)
+
+- privacy.html Third parties now describes the active Prerender behavior (user-agent classification of crawlers, cached copies of our own pages, no visitor data) — this is the dated disclosure the page's own change rules call for, made as soon as the extension's activity was discovered — and states plainly that Baseline is installed but verified not capturing, and that enabling it would change this page first, same release. The server-log sentence now names user-agent strings alongside IP addresses.
+- `llms.txt` gains a serving note for agents: crawler/AI user-agents may receive the pre-rendered cached copy (up to ~3 days stale; same DOM contract ids; check `X-Prerendered` or use a browser UA when verifying fresh deploys).
+- `docs/analytics-decision.md` gains a dated amendment: Baseline ≠ Netlify Analytics (edge user-agent aggregates in Blobs, 7-day rolling window, no IP/path, bot-filtered — not server-log based, not retroactive); it cannot serve the day-30 funnel purpose (7-day window cannot span days 19–30; no pageviews, paths, or visitors), so **the adopted decision stands and the Netlify Analytics dashboard toggle remains the pending operator action**. The amendment also records exactly what enabling Baseline instead would require (amended "nothing passive" sentences + an accurate disclosure — the previously drafted sentence described server-log reading and would be false for Baseline + a CHANGELOG entry superseding 0.2.1's "the privacy promises forbid anonymous usage measurement" claim, which otherwise contradicts any enabled measurement).
+- `AGENTS.md` deployment notes now list the live extension state, including that production verification should use a browser user-agent.
+
+### Unchanged
+
+- The day-30 gate is unaffected throughout: gate criteria are explicit signals only; analytics numbers were always context, never criteria. The recorded fallback (readout argued from explicit-action counts alone) still applies if no analytics is enabled by day 19.
+
 ## 0.2.8 - 2026-06-12
 
 Security maintenance: clears both open Dependabot alerts (GHSA-gv7w-rqvm-qjhr high, GHSA-g7r4-m6w7-qqqr low — both on esbuild, development scope, fixed in 0.28.1). Build-tooling only: esbuild was vite's bundler dependency and never ships in the production bundle.

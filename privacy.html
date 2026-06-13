@@ -38,7 +38,7 @@
 
   <main class="legal-wrap">
     <h1>Privacy, in plain language</h1>
-    <p class="legal-updated">Last updated 2026-06-12 &middot; applies to CheapAgent v0.2.6 beta</p>
+    <p class="legal-updated">Last updated 2026-06-12 &middot; applies to CheapAgent v0.2.9 beta</p>
 
     <h2>Your documents stay in your browser</h2>
     <p>When you paste or upload a document, the conversion runs locally in your browser using the open-source <a href="https://github.com/Profusion-AI/doc2toon" target="_blank" rel="noopener">doc2toon</a> engine. The text of your document is <strong>never uploaded, never stored, and never sent to a server or an LLM API</strong>. This is true whether you are signed in or not.</p>
@@ -85,7 +85,8 @@
     <p>You can <a href="#" data-consent-prefs>change your storage choice</a> at any time; the same link is in the footer of the main page as &ldquo;Cookie preferences&rdquo;.</p>
 
     <h2>Third parties</h2>
-    <p>CheapAgent is hosted on <a href="https://www.netlify.com/" target="_blank" rel="noopener">Netlify</a>, and sign-in is provided by Netlify Identity. Waitlist form submissions are stored by Netlify Forms &mdash; the same provider, same policy. Netlify processes requests as our hosting provider; see <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">Netlify's privacy policy</a> for how they handle infrastructure-level data such as IP addresses in server logs.</p>
+    <p>CheapAgent is hosted on <a href="https://www.netlify.com/" target="_blank" rel="noopener">Netlify</a>, and sign-in is provided by Netlify Identity. Waitlist form submissions are stored by Netlify Forms &mdash; the same provider, same policy. Netlify processes requests as our hosting provider; see <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">Netlify's privacy policy</a> for how they handle infrastructure-level data such as IP addresses and user-agent strings in server logs.</p>
+    <p>Our Netlify setup also runs Netlify's Prerender extension (active since 2026-06-02, disclosed here 2026-06-12): it checks each request's user-agent header to recognize web crawlers and AI agents, and serves those agents a cached, pre-rendered copy of the requested page from Netlify's storage. The cached copies are of our own pages &mdash; they contain nothing you typed, and the extension collects and stores <strong>no visitor data</strong>. Human visitors receive the site directly and are unaffected. No other analytics or measurement extension is active: one called Baseline is installed at the Netlify team level but has never been enabled for this site, and we verified it captures nothing in that state; if that ever changes, this page changes first, in the same release.</p>
 
     <h2>No billing in v0.2</h2>
     <p>The v0.2 beta has no paid tier and collects no payment information.</p>

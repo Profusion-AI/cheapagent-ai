@@ -69,3 +69,5 @@ For agents operating the workbench page on a user's behalf, this DOM contract is
 
 Anonymous use of the page makes no network requests with document content or character counts; signed-in quota checks transmit character counts only. The only anonymous-capable requests are explicit submissions: the feedback button pair above, the waitlist form on /api.html, and the /go interest links — each sends exactly what its label says and never document content.
 
+One serving note for agents: requests whose user-agent identifies a crawler or AI agent may be answered with a cached, pre-rendered copy of the page (Netlify Prerender extension; the response carries `X-Prerendered: true` and may lag the latest deploy by up to ~3 days). The DOM contract ids above are identical in the pre-rendered copy. If freshness matters — e.g. verifying a just-shipped change — fetch with a regular browser user-agent or check for the `X-Prerendered` header. The extension stores no visitor data; the cached objects are this site's own pages. Disclosed on the privacy page.
+
