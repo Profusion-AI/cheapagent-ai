@@ -103,6 +103,33 @@ Scope discipline on the headline claim: **CLI and web now share the frozen Verdi
 
 ---
 
+## Addendum — 2026-06-13 (launch-prep branch protection amendment)
+
+Kyle added one sprint hardening item that was not in the original 30-day plan:
+protect `main` on both repos before launch-wave attention creates outside
+contributor traffic. This is **contributor-only hardening**, not a slower
+internal workflow:
+
+- Kyle, Codex, and Claude must retain direct-push access to `main` for fast
+  fixes, analytics-disclosure timing, and release operations.
+- Outside contributors must use PRs; direct pushes to `main` from untrusted
+  identities are blocked.
+- `doc2toon` can require the existing `CI` Node 20/24 matrix for outside PRs;
+  keep the context-check dogfood workflow advisory unless explicitly promoted
+  to a gate.
+- `cheapagent-ai` needs a minimal build CI (`npm ci` + `npm run build`) before
+  any required-check rule is useful; its current context-check workflow stays
+  advisory.
+- Do not enable "do not allow bypassing," and do not require PRs for the
+  trusted maintainer identities/apps. Verify after enabling that a trusted
+  identity can still push to `main` and an outside/fork-style direct push is
+  blocked.
+
+This is now recorded in the root phased plan as Phase 4.6, days 15–18, before
+the launch wave.
+
+---
+
 ## Inventory of durable artifacts
 
 | Artifact | Where |
