@@ -2,6 +2,22 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.10 - 2026-06-12
+
+Analytics decision confirmed (Kyle), and a third inert extension disclosed. Docs + one privacy.html accuracy edit; no product code changes.
+
+### Decided
+
+- **Anonymous analytics: Netlify Web Analytics, server-side (Free tier first).** Reads Netlify's server logs — no script, no cookies — so every privacy promise stays intact. Plan: enable from the dashboard, snapshot numbers into `gate-tally.md` daily during launch week; **no Pro** ($20/mo only buys a 30-day no-snapshot window, not worth it pre-revenue; $9 Personal/7-day only if snapshotting is tedious); watch for the irreversible legacy-Free→credit-plan migration prompt before toggling. The dashboard toggle remains the pending operator action; the Web Analytics privacy disclosure ships *with* the toggle, not before.
+- **Simple Analytics: declined.** The extension was enabled on the team but is **verified inert** (no script on any page, no SA env vars, env-only scopes so it cannot self-inject). It works by adding a **client-side beacon**, which would break the "no analytics JS / nothing counted from merely visiting" promise — so it is not adopted. Left installed-but-inert (harmless); uninstalling it and Baseline is optional cleanup.
+- **Prerender: kept enabled** (Kyle) for agent-discoverability — agents reaching the site get a fully rendered page, not an empty SPA shell. Disclosure from v0.2.9 stands.
+- Full record: `docs/kyle-decision-analytics-2026-06-12.md`; operational detail in `docs/analytics-decision.md` (amended).
+
+### Changed (privacy, disclosed same-release)
+
+- privacy.html Third parties: the Baseline-only sentence is generalized to state that **both** team-installed analytics extensions (Baseline and Simple Analytics) are inactive and verified capturing nothing on this site, and that any future visitor analytics will be a server-side, no-script, no-cookie option disclosed here first. (Accuracy fix — the prior wording named only one of the two inert extensions.)
+- `AGENTS.md` extension-state note updated: lists all three extensions, the chosen server-side analytics path, and an explicit "do not wire in Simple Analytics."
+
 ## 0.2.9 - 2026-06-12
 
 Disclosure and reconciliation release, after QC flagged that the analytics extension installed on the Netlify team is **Baseline (by Google)** — not the Netlify Analytics the Phase 4.5 decision adopted. No product code changes.

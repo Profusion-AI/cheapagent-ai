@@ -2,7 +2,7 @@
 
 **Decision date:** 2026-06-12 (the plan's "day 15" item, decided when instrumentation shipped)
 **Decision:** **Adopt Netlify Analytics** — enable it on the cheapagent.ai site **before launch week**.
-**Status:** awaiting the dashboard toggle (operator action; it is a paid site add-on, ~$9/mo, and cannot be enabled from the repo). **See the 2026-06-12 amendment below: the extension found installed on the team ("Baseline", by Google) is NOT Netlify Analytics, does not satisfy this decision, and is verified not capturing.**
+**Status:** **CONFIRMED server-side (Kyle, 2026-06-12)** — Netlify Web Analytics is the chosen source; enable on the **Free** tier first, snapshot daily during launch week. Still awaiting the operator dashboard toggle. Two analytics extensions sit installed-but-inert on the team (Baseline, Simple Analytics) and are NOT adopted — see the amendments below. Full decision record: [`kyle-decision-analytics-2026-06-12.md`](kyle-decision-analytics-2026-06-12.md).
 
 ## Why adopt
 
@@ -146,3 +146,68 @@ byte-identical static file. What this means:
   post-JS DOM to non-JS crawlers; it costs normal function/edge invocations and
   serves agents copies up to ~3 days stale relative to a deploy. Disabling it
   is also fine — nothing in the product depends on it.
+  - **Decided 2026-06-12 (Kyle): KEEP Prerender enabled** — the goal is that
+    agents discovering the site (and, through it, doc2toon) get a fully
+    rendered page rather than an empty SPA shell. The v0.2.9 disclosure stands.
+
+---
+
+## Amendment 2026-06-12 — server-side route CONFIRMED; Simple Analytics declined (third extension, verified inert)
+
+QC follow-up (Codex) surfaced a third analytics extension and recommended a
+plan. Kyle's decision, recorded here.
+
+### Decision: Netlify Web Analytics (server-side), Free tier first
+
+Kyle confirmed the **server-side route** — the original adoption above stands,
+with the operating plan sharpened:
+
+- **Enable Netlify Web Analytics from the dashboard on the current Free team**
+  (`Logs & Metrics > Analytics > Enable`). On Netlify's credit-based plans Web
+  Analytics is no longer Pro-only; retention scales by tier (Free: current/past
+  day; Personal $9/mo: 7 days; Pro $20/mo: 30 days — per Codex's read of
+  Netlify's credit-based pricing docs).
+- **Snapshot the dashboard numbers into `gate-tally.md` daily during launch
+  week (days 19–30).** Retention limits dashboard lookback, not capture — short
+  windows are fine if numbers are copied before they age out.
+- **No Pro.** Pro's only analytics benefit over Personal is the 30-day window
+  (no manual snapshotting); not worth $20/mo pre-revenue. Step up to **$9
+  Personal** only if daily snapshotting is tedious (7-day window = two snapshots
+  cover the gate stretch).
+- **Legacy-Free caveat (check before toggling):** the team reads as Free and
+  may be on a *legacy* Free plan (pre-2025 credit migration). If enabling Web
+  Analytics forces a migration to credit-based plans — which Netlify says is
+  **irreversible** — stop and reconsider; that is a bigger decision than $9. If
+  Free offers analytics on the current plan, just enable it.
+- Disclosure on enable is unchanged: the drafted Third-parties sentence above
+  ("reads Netlify's server logs; no cookies, no scripts") is accurate for
+  Netlify Web Analytics and ships **with** the toggle, in the same release, plus
+  a dated CHANGELOG entry that also supersedes the 0.2.1 "promises forbid
+  anonymous usage measurement" line.
+
+### Simple Analytics: declined (would break the brand)
+
+The "Simple Analytics" extension (by Simple Analytics, analytics category) was
+enabled on the team. **Verified inert exactly as Baseline:** no SA script served
+on any page (`/`, `/api.html`, `/honesty.html`, `/privacy.html`; only the app's
+own `main.js`), no SA env vars on the site (only the three `NETLIFY_PRERENDER_*`),
+SA proxy paths (`/simple.js`, `/sa.js`, …) 404. The extension's scopes are
+`env:read/write/delete` only — no site-write, no edge functions — so it cannot
+inject anything on its own; enabling it changed nothing.
+
+Why not adopt it: unlike Baseline/Prerender (edge-side, no page script), Simple
+Analytics works by adding a **client-side JavaScript beacon** (Netlify's setup
+copy: it "will add the Simple Analytics script to your website to start tracking
+visits instantly"; SA has no purely server-side/log mode — even its proxy setup
+loads a first-party script). A pageview beacon that fires on load is "counted
+from merely visiting," which directly contradicts privacy.html ("Nothing is
+counted from merely visiting", "nothing is ever sent passively"), llms.txt
+("nothing is captured passively"), the consent banner ("No tracking here"), and
+AGENTS.md ("no client-side analytics JS … no passive telemetry"). Cookieless and
+EU-hosted (SA's strengths) is not the issue — *scriptless* is. Netlify Web
+Analytics keeps the promise; Simple Analytics would require pivoting it. Kyle
+chose to keep the promise.
+
+- **SA disposition:** left installed-but-inert (harmless; collects nothing).
+  Uninstalling it (and Baseline) to shrink surface area is optional and fine;
+  not required. Both are disclosed on privacy.html as installed-but-inactive.
