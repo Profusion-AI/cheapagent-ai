@@ -918,7 +918,7 @@ sourceInput.addEventListener("input", () => {
     sourceInput.value = text;
     setNotice(
       currentUser()
-        ? `Per-run limit reached at ${formatNumber(DAILY_CHAR_LIMIT)} characters.`
+        ? `Per-run limit reached at ${formatNumber(charLimit())} characters.`
         : `Anonymous limit reached at ${formatNumber(ANON_CHAR_LIMIT)} characters. Sign in for ${formatNumber(DAILY_CHAR_LIMIT)} characters per day.`,
     );
   }

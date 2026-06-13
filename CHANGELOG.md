@@ -24,6 +24,7 @@ Phase 5 + Phase 6 of the 30-day plan: the hosted API answers a real stub over it
 
 - **privacy.html: "No billing in v0.2" replaced with a Payments section** — Pro early access is paid via Stripe payment links; Stripe processes payment details under its own policy; CheapAgent never sees card details; we receive and keep only the receipt (email + product) to turn on the allowance by hand; there is no billing code on the site. Disclosed the same release the payment-link plumbing went live, per the page's change-disclosure promise.
 - privacy.html: the `/go/*` interest-link description now names the forward destinations (Stripe checkout for Pro, the design-partner application for Enterprise, or the waitlist when unset); the counted-click disclosure is unchanged.
+- privacy.html "What we store if you sign in" now lists the account plan and the optional hand-set allowance override — the `limits.daily_chars` field this release adds to the `users/{sub}` record for Pro/design-partner accounts — so the enumerated "whole account record" stays accurate, per the page's own change-disclosure promise. Free accounts store neither beyond the default; no new PII, no passive telemetry.
 - privacy.html version line → v0.2.12 (2026-06-13).
 
 ## 0.2.10 - 2026-06-12

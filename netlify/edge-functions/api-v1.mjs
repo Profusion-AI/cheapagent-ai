@@ -72,9 +72,9 @@ export default async (request) => {
         message:
           "Missing or malformed API key. The hosted Context API is in early access; " +
           "no keys are issued yet. doc2toon runs locally today via MCP, `doc2toon serve`, and the CLI.",
+        docs_url: DOCS_URL,
+        early_access_url: EARLY_ACCESS_URL,
       },
-      docs_url: DOCS_URL,
-      early_access_url: EARLY_ACCESS_URL,
     });
   }
 
@@ -89,9 +89,8 @@ export default async (request) => {
         : "The hosted Context API is not available yet — it launches when early-access demand justifies " +
           "running it properly. The identical /v1 contract already runs locally via MCP, `doc2toon serve`, " +
           "and the CLI, where document bodies never leave your machine.",
+      docs_url: DOCS_URL,
+      early_access_url: EARLY_ACCESS_URL,
     },
-    route: route || null,
-    docs_url: DOCS_URL,
-    early_access_url: EARLY_ACCESS_URL,
   });
 };

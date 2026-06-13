@@ -154,6 +154,8 @@ The code needs **no change** to serve the subdomain; attaching it is a pure DNS/
 
    The same three commands against `https://cheapagent.ai/v1/...` already pass today.
 
+   Two pre-launch consequences of the host-agnostic `/v1/*` binding, by design: the `401` on a keyless probe is a hosted-stub-only status (the engine-mirrored `openapi.yaml` models only the `501` early-access posture, not auth), and the documented `GET /v1/openapi.yaml` discovery route is also stubbed — callers fetch the published spec at the apex `https://cheapagent.ai/openapi.yaml` until the hosted server exists. Both resolve when Phase 7 replaces the stub.
+
 If subdomain friction ever exceeds the spike's 1-day budget, **stop and ship the apex** (`cheapagent.ai/v1/*`, already live) — the subdomain defers to GA with no code or contract change.
 
 ### Phase 7 swap (contingent, gate-pass only)

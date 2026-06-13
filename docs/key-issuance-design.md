@@ -134,6 +134,8 @@ or agent fleet hammering one key changes that:
 ## What the Phase 6 stub needs from this document (the only pre-gate consumer)
 
 The 501 stub checks the **shape** `^ca_(live|test)_[A-Za-z0-9]{32,}$`: missing/malformed key →
-401 pointing at api.html; key-shaped header → 501 `{error, docs_url, early_access_url}`. No
+401 pointing at api.html; key-shaped header → 501. Both bodies use the published `Error` schema —
+`{error: {code, message, docs_url, early_access_url}}` (pointer fields nested inside `error`, per
+`openapi.yaml`), so the stub envelope and the spec agree and the Phase 7 swap changes nothing. No
 Blobs lookup, no doc2toon execution — the stub proves DNS/SSL/routing and that the header
 contract won't break real keys later. That is all it proves, on purpose.
