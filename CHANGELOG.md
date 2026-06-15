@@ -2,6 +2,25 @@
 
 All notable changes to the CheapAgent app will be documented in this file.
 
+## 0.2.11 - 2026-06-15
+
+Netlify Web Analytics enabled. Privacy disclosure and promise-reconciliation changes ship in the same deploy, per the gap-free runbook in `docs/kyle-decision-analytics-2026-06-12.md`. No product code changes.
+
+### Enabled
+
+- **Netlify Web Analytics (server-side, Free tier).** Reads Netlify's own server-side request logs to count page views — no script, no cookies, nothing added to the page. Activated via the Netlify dashboard after this deploy. This is an extension of the infrastructure-level log processing Netlify already performs as our hosting provider.
+
+### Changed (privacy, disclosed same-release)
+
+- privacy.html Third parties: replaces the "if we ever turn on visitor analytics" forward declaration with a present-tense Netlify Web Analytics disclosure (server-log reading, no script, no cookies). Notes the two inert team-level extensions (Baseline, Simple Analytics) remain inactive.
+- privacy.html Site-wide daily totals: scopes "Nothing is counted from merely visiting or reading" to "Nothing in these application-layer totals is counted from merely visiting or reading" — the explicit carve-out for server-log page-view counting.
+- `llms.txt` current posture: scopes "nothing is captured passively" to the application-layer counters; adds a Netlify Web Analytics note.
+- "Last updated" line bumped to 2026-06-15, v0.2.11.
+
+### Supersedes
+
+- v0.2.1 "Not in this release: Anonymous usage measurement, traffic sources, funnels, retention cohorts — excluded by design; the privacy promises forbid them." Netlify Web Analytics (server-side) is the one promise-compatible anonymous measurement path, confirmed by the Kyle decision record (2026-06-12). The promises are reconciled by scoped attribution, not retracted.
+
 ## 0.2.10 - 2026-06-12
 
 Analytics decision confirmed (Kyle), and a third inert extension disclosed. Docs + one privacy.html accuracy edit; no product code changes.
